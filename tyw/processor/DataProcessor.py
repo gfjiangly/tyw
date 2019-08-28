@@ -9,7 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 import cvtools
 
-from tyw.config import merge_cfg_from_file, cfg
+from tyw.configs.config import merge_cfg_from_file, cfg
 
 # 解决模块调用时代码中使用相对路径访问文件问题
 current_path = osp.dirname(__file__) + '/'
