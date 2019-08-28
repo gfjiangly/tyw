@@ -1,0 +1,22 @@
+DEBUG: False
+DATA_SRC: 'E:/tyw-data/original/'
+PROCESSOR:
+  USE_CLEAR: False
+  DISCARD: 300000
+DRAW:
+  EDA_WHOLE: False
+  EDA_FEATURES: False
+  EDA_FILES_MEAN: False
+  EDA_FRAGMENTS: False
+LOOK_BACK: 200
+SAVE_CSV: False
+PPG:
+  LOOK_BACK: 200
+EDA:
+  FEATS_MEAN: False
+  FEATS_MAX_MIN: True
+  MAX_MIN: 0.
+  L_TH: 0.8
+  H_TH: 1.2
+  FEATS_LEARN: False
+  ADAPT_TH: False
