@@ -23,8 +23,10 @@ class DataProcessor:
         [
             {
                 'file_id': 'who_date_cat',
-                'filename': 'E:/tyw-data/clear/who_date_cat.txt',
-                'original_name': 'xxx'
+                'filename': 'E:/tyw-data/clear/who_date_cat.pkl',
+                'original_name': 'xxx',
+                'signals': ['PPG', 'EDA', ...],
+                'bad': {'PPG': [], 'ECG': []}
             },
             ...
         ]
