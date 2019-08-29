@@ -93,6 +93,16 @@ __C.EDA.DRAW_FILES_MEAN = True
 __C.EDA.ADAPT_TH = True
 
 
+# ---------------------------------------------------------------------------- #
+# TRAIN options
+# ---------------------------------------------------------------------------- #
+__C.TRAIN = AttrDict()
+__C.TRAIN.HUNGRY_MODEL = AttrDict()
+__C.TRAIN.HUNGRY_MODEL.COLUMN_NUM = 1
+__C.TRAIN.HUNGRY_MODEL.CLASS_NUM = 2
+__C.TRAIN.HUNGRY_MODEL.LOOK_BACK = 100
+
+
 def assert_and_infer_cfg():
     """Call this function in your script after you have finished setting all cfg
     values that are necessary (e.g., merging a config from a file, merging

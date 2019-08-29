@@ -26,6 +26,7 @@ class DataProcessor:
                 'filename': 'E:/tyw-data/clear/who_date_cat.pkl',
                 'original_name': 'xxx',
                 'signals': ['PPG', 'EDA', ...],
+                'cats': {'hungry': x, 'tired': x, ...}
                 'bad': {'PPG': [], 'ECG': []}
             },
             ...

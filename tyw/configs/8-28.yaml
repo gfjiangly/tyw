@@ -23,3 +23,7 @@ EDA:
   H_TH: 1.2
   FEATS_LEARN: False
   ADAPT_TH: False
+
+TRAIN:
+  HUNGRY_MODEL:
+    COLUMN_NUM: 1
