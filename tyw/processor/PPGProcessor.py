@@ -67,7 +67,7 @@ class PPGProcessor:
     def __init__(self, cahce=cfg.PPG.CACHE):
         self._cache = Cache(cahce)
 
-    def extract_ppg_feats(self, data=None, file_id=None):
+    def extract_feats(self, data=None, file_id=None):
         assert data is not None or file_id is not None
         if file_id is not None:
             cache = self._cache.get(file_id)
@@ -75,12 +75,12 @@ class PPGProcessor:
                 return mmcv.load(cache)
         if isinstance(data, pd.Series):
             ppg = list(data)
-            return self._feature_extraction(ppg, file_id)
+            return self._extract_feats(ppg, file_id)
         else:
             print('不支持的参数类型 {}: {}'.format(data, type(data)))
             return None
 
-    def _feature_extraction(self, data, file_id=None):
+    def _extract_feats(self, data, file_id=None):
         count = 0
         ppg_h = -sys.maxsize
         max_interval = -sys.maxsize

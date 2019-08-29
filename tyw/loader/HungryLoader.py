@@ -4,8 +4,10 @@
 # @Site    : 
 # @File    : HungryLoader.py
 # @Software: PyCharm
+import os.path as osp
 import mmcv
 import numpy as np
+import pandas as pd
 
 from tyw.processor.DataProcessor import DataProcessor
 from tyw.processor.PPGProcessor import PPGProcessor
@@ -23,7 +25,7 @@ class HungryLoader(DataProcessor):
         self.dataY = []
         for data in self.dataset:
             if 'PPG' in data['signals']:
-                ppg = mmcv.load(data['signals'])
+                ppg = mmcv.load(data['filename'])
                 self.dataX.append(ppg)
             if 'hungry' in data['cats']:
                 label = data['cats']['hungry']
@@ -37,7 +39,30 @@ class HungryLoader(DataProcessor):
         return batch_data_X, batch_data_Y
 
     def prep_train_data(self, batch_data_X, batch_data_Y):
-        pass
+        ppg_processor = PPGProcessor()
+        for file, label in zip(self.dataX, self.dataY):
+            # 现在仅用到PPG特征
+            file_id = osp.splitext(osp.basename(file))[0]
+            data = mmcv.load(file)['PPG']
+            ppg_feats = ppg_processor.extract_feats(data, file_id)
+            X, Y = self._split_data(ppg_feats, label)
+            batch_data_X = np.vstack((batch_data_X, X))  # batch维度
+            batch_data_Y = np.vstack((batch_data_Y, Y))
+
+    def _split_data(self, data, label, overlap=0.8):
+        # data类型需要是个array，否则会报ValueError
+        if isinstance(data, pd.DataFrame):
+            data = data.values
+        X = []
+        for i in range(0, len(data) - self.look_back, int(self.look_back * overlap)):
+            # 这里dataset是numpy数组，逗号前是行操作逗号后是列操作
+            a = data[i:(i + self.look_back)]
+            X.append(a)
+        Y = np.zeros(shape=[len(X), self.class_num], dtype=np.float32)
+        if label >= self.class_num:
+            label = self.class_num - 1
+        Y[:, label] = 1  # one hot encode
+        return np.array(X), Y
 
 
 if __name__ == '__main__':
