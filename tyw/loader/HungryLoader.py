@@ -24,12 +24,13 @@ class HungryLoader(DataProcessor):
         self.dataX = []
         self.dataY = []
         for data in self.dataset:
-            if 'PPG' in data['signals']:
-                ppg = mmcv.load(data['filename'])
-                self.dataX.append(ppg)
-            if 'hungry' in data['cats']:
-                label = data['cats']['hungry']
+            if 'hungry' in data:
+                label = data['hungry']
                 self.dataY.append(label)
+                signals = []
+                if 'PPG' in data['signals']:
+                    signals = data['filename']
+                self.dataX.append(signals)
 
     def get_train_data(self):
         assert len(self.dataX) == len(self.dataY)
@@ -39,12 +40,13 @@ class HungryLoader(DataProcessor):
         return batch_data_X, batch_data_Y
 
     def prep_train_data(self, batch_data_X, batch_data_Y):
-        ppg_processor = PPGProcessor()
+        ppg_processor = PPGProcessor(cache=cfg.PPG.CACHE)
         for file, label in zip(self.dataX, self.dataY):
             # 现在仅用到PPG特征
             file_id = osp.splitext(osp.basename(file))[0]
             data = mmcv.load(file)['PPG']
             ppg_feats = ppg_processor.extract_feats(data, file_id)
+            assert self.column_num == ppg_feats.shape[1]
             X, Y = self._split_data(ppg_feats, label)
             batch_data_X = np.vstack((batch_data_X, X))  # batch维度
             batch_data_Y = np.vstack((batch_data_Y, Y))

@@ -6,12 +6,12 @@
 # @Software: PyCharm
 import sys
 import pandas as pd
-from collections import OrderedDict
 import os.path as osp
 import mmcv
-from cvtools import get_files_list
+import cvtools
 
 from tyw.configs.config import cfg
+from tyw.utils.cache import Cache
 
 
 class Pulse:
@@ -22,50 +22,14 @@ class Pulse:
         self.ppg_t = ppg_t
 
 
-class Cache(object):
-
-    def __init__(self, cache_path, capacity=1000):
-        self.cache_path = cache_path
-        self._cache = OrderedDict()
-        self._capacity = int(capacity)
-        if capacity <= 0:
-            raise ValueError('capacity must be a positive integer')
-
-        for file in get_files_list(cache_path, file_type='.pkl'):
-            self.set(file)
-
-    @property
-    def capacity(self):
-        return self._capacity
-
-    @property
-    def size(self):
-        return len(self._cache)
-
-    def put(self, key, val):
-        if key in self._cache:
-            return
-        if len(self._cache) >= self.capacity:
-            self._cache.popitem(last=False)
-        self._cache[key] = val
-
-    def get(self, key, default=None):
-        val = self._cache[key] if key in self._cache else default
-        return val
-
-    def set(self, file):
-        key = osp.splitext(osp.basename(file))[0]
-        self.put(key, file)
-
-
 class PPGProcessor:
     """
     PPG features are processed by LiuChangxin，saved in csv files.
     features are inlcude PPG Waveform extreme max points(PPG_H),
     extreme min points(PPG_L) and cycle(PPG_T).
     """
-    def __init__(self, cahce=cfg.PPG.CACHE):
-        self._cache = Cache(cahce)
+    def __init__(self, cache=cfg.PPG.CACHE):
+        self._cache = Cache(cache)
 
     def extract_feats(self, data=None, file_id=None):
         assert data is not None or file_id is not None
@@ -110,8 +74,9 @@ class PPGProcessor:
         print("up_interval_threshold " +
               str(cfg.PPG.INTERVAL_UP_THRESHOLD) + "  :   " + str(up_threshold))
         res = pd.DataFrame(res, dtype=float)
-        if file_id is None:
+        if file_id is not None:
             file = osp.join(self._cache.cache_path, file_id+'.pkl')
+            cvtools.makedirs(file)
             mmcv.dump(res, file)
             self._cache.put(file_id, file)
         return res

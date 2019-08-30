@@ -13,7 +13,7 @@ DRAW:
 LOOK_BACK: 200
 SAVE_CSV: False
 PPG:
-  CACHE: '.cache/ppg'
+  CACHE: 'E:/tyw-data/cache/ppg'
   LOOK_BACK: 200
   THRESHOLD: 200
   INTERVAL_UP_THRESHOLD: 3000
@@ -29,4 +29,4 @@ EDA:
 TRAIN:
   HUNGRY_MODEL:
     TYPE: 'lstm'
-    COLUMN_NUM: 1
+    COLUMN_NUM: 4

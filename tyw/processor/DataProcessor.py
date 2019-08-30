@@ -68,7 +68,7 @@ class DataProcessor:
                     [item.split() for item in raw_data[46:]],
                     columns=[item.strip() for item in raw_data[45].split()])
                 # self.channel_map[data.columns.tolist()[0]] = 'time'
-                data = data[self.channel_map.keys()][1:]
+                data = data[self.channel_map.keys()][1:].astype(float)
                 # 使用data.columns = []修改不了
                 data.rename(columns=self.channel_map, inplace=True)
                 # save clear data
