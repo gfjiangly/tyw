@@ -29,4 +29,6 @@ EDA:
 TRAIN:
   HUNGRY_MODEL:
     TYPE: 'lstm'
-    COLUMN_NUM: 4
+    COLUMN_NUM: 1
+    LAYERS: [1, 30, 20, 2]
+    EPOCHS: 32

@@ -45,6 +45,7 @@ class DataProcessor:
         }
         self.dataset = []
         self._cache = Cache(cfg.CACHE.DATASET)
+        print('Loading Dataset...')
         if cfg.PROCESSOR.USE_CLEAR:
             self.dataset = cvtools.load(
                 osp.join(cfg.DATA_SRC, 'data_info.json'))
@@ -91,7 +92,9 @@ class DataProcessor:
         try:
             file_info['hungry'] = int(file_split[2])
         except ValueError:
-            print('{}: Hunger tag has no default value'.format(file_id))
+            if cfg.DEBUG:
+                print('{}: Hunger tag has no default value'
+                      .format(file_id))
         try:
             file_info['tired'] = int(file_split[3])
         except ValueError:
@@ -103,7 +106,8 @@ class DataProcessor:
 
         ann = cvtools.readlines(filename)
         file_info['original_name'] = ann[0].strip()
-        file_info['signals'] = [signal.strip() for signal in ann[1].split()]
+        file_info['signals'] = [signal.strip()
+                                for signal in ann[1].split()]
         file_info['bad'] = dict()
         for signal_ann in ann[2:]:
             signal_ann = signal_ann.split()

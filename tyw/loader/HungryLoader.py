@@ -34,22 +34,21 @@ class HungryLoader(DataProcessor):
 
     def get_train_data(self):
         assert len(self.dataX) == len(self.dataY)
-        batch_data_X = np.empty(shape=(0, self.look_back, self.column_num))
-        batch_data_Y = np.empty(shape=(0, self.class_num))
-        self.prep_train_data(batch_data_X, batch_data_Y)
+        batch_data_X, batch_data_Y = self.prep_train_data()
         return batch_data_X, batch_data_Y
 
-    def prep_train_data(self, batch_data_X, batch_data_Y):
+    def prep_train_data(self):
+        batch_data_X = np.empty(shape=(0, self.look_back, self.column_num))
+        batch_data_Y = np.empty(shape=(0, self.class_num))
         ppg_processor = PPGProcessor(cache=cfg.PPG.CACHE)
         for file, label in zip(self.dataX, self.dataY):
             # 现在仅用到PPG特征
-            file_id = osp.splitext(osp.basename(file))[0]
-            data = mmcv.load(file)['PPG']
-            ppg_feats = ppg_processor.extract_feats(data, file_id)
+            ppg_feats = ppg_processor.extract_feats(file)
             assert self.column_num == ppg_feats.shape[1]
             X, Y = self._split_data(ppg_feats, label)
             batch_data_X = np.vstack((batch_data_X, X))  # batch维度
             batch_data_Y = np.vstack((batch_data_Y, Y))
+        return batch_data_X, batch_data_Y
 
     def _split_data(self, data, label, overlap=0.8):
         # data类型需要是个array，否则会报ValueError
