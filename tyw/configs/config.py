@@ -98,9 +98,13 @@ __C.EDA.ADAPT_TH = True
 # ---------------------------------------------------------------------------- #
 __C.TRAIN = AttrDict()
 __C.TRAIN.HUNGRY_MODEL = AttrDict()
+__C.TRAIN.HUNGRY_MODEL.TYPE = 'lstm'
+__C.TRAIN.HUNGRY_MODEL.LAYERS = [6, 30, 20, 7]
+__C.TRAIN.HUNGRY_MODEL.LOOK_BACK = 100
+__C.TRAIN.HUNGRY_MODEL.BATCH_SIZE = 32
+__C.TRAIN.HUNGRY_MODEL.EPOCHS = 12
 __C.TRAIN.HUNGRY_MODEL.COLUMN_NUM = 1
 __C.TRAIN.HUNGRY_MODEL.CLASS_NUM = 2
-__C.TRAIN.HUNGRY_MODEL.LOOK_BACK = 100
 
 
 def assert_and_infer_cfg():

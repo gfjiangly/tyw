@@ -1,5 +1,5 @@
 DEBUG: False
-DATA_SRC: 'E:/tyw-data/original/'
+DATA_SRC: 'E:/tyw-data/original/rename-txt'
 PROCESSOR:
   USE_CLEAR: False
   DISCARD: 300000
@@ -26,4 +26,5 @@ EDA:
 
 TRAIN:
   HUNGRY_MODEL:
+    TYPE: 'lstm'
     COLUMN_NUM: 1
