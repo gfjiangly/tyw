@@ -47,6 +47,7 @@ __C.SAVE_CSV = False
 # draw options
 # ---------------------------------------------------------------------------- #
 __C.DRAW = AttrDict()
+__C.DRAW.PATH = 'draw/'
 __C.DRAW.EDA_WHOLE = False
 __C.DRAW.EDA_FEATURES = False
 __C.DRAW.EDA_FILES_MEAN = False
