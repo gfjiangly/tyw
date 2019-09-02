@@ -1,5 +1,7 @@
 DEBUG: False
-DATA_SRC: 'E:/tyw-data/original/'
+DATA_SRC: 'E:/tyw-data/original/rename-txt'
+ANN_SRC: 'E:/tyw-data/original/anns'
+CLEAR_SRC: 'E:/tyw-data/original/clear'
 PROCESSOR:
   USE_CLEAR: False
   DISCARD: 300000
@@ -11,7 +13,7 @@ DRAW:
 LOOK_BACK: 200
 SAVE_CSV: False
 PPG:
-  CACHE: '.cache/ppg'
+  CACHE: 'E:/tyw-data/cache/ppg'
   LOOK_BACK: 200
   THRESHOLD: 200
   INTERVAL_UP_THRESHOLD: 3000
@@ -26,4 +28,7 @@ EDA:
 
 TRAIN:
   HUNGRY_MODEL:
+    TYPE: 'lstm'
     COLUMN_NUM: 1
+    LAYERS: [1, 30, 20, 2]
+    EPOCHS: 32

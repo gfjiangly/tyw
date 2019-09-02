@@ -26,6 +26,8 @@ cfg = __C
 __C.DEBUG = False
 
 __C.DATA_SRC = 'data/'
+__C.ANN_SRC = 'anns/'
+__C.CLEAR_SRC = 'clear/'
 
 # ---------------------------------------------------------------------------- #
 # draw options
@@ -45,6 +47,7 @@ __C.SAVE_CSV = False
 # draw options
 # ---------------------------------------------------------------------------- #
 __C.DRAW = AttrDict()
+__C.DRAW.PATH = 'draw/'
 __C.DRAW.EDA_WHOLE = False
 __C.DRAW.EDA_FEATURES = False
 __C.DRAW.EDA_FILES_MEAN = False
@@ -54,8 +57,8 @@ __C.DRAW.EDA_FRAGMENTS = False
 # ---------------------------------------------------------------------------- #
 # PPG options
 # ---------------------------------------------------------------------------- #
-__C.CACHE = '.cache'
 __C.PPG = AttrDict()
+__C.PPG.CACHE = '.cache'
 __C.PPG.LOOK_BACK = 100
 __C.PPG.THRESHOLD = 200
 __C.PPG.INTERVAL_UP_THRESHOLD = 3000
@@ -98,9 +101,21 @@ __C.EDA.ADAPT_TH = True
 # ---------------------------------------------------------------------------- #
 __C.TRAIN = AttrDict()
 __C.TRAIN.HUNGRY_MODEL = AttrDict()
+__C.TRAIN.HUNGRY_MODEL.TYPE = 'lstm'
+__C.TRAIN.HUNGRY_MODEL.LAYERS = [6, 30, 20, 7]
+__C.TRAIN.HUNGRY_MODEL.LOOK_BACK = 100
+__C.TRAIN.HUNGRY_MODEL.BATCH_SIZE = 32
+__C.TRAIN.HUNGRY_MODEL.EPOCHS = 12
 __C.TRAIN.HUNGRY_MODEL.COLUMN_NUM = 1
 __C.TRAIN.HUNGRY_MODEL.CLASS_NUM = 2
-__C.TRAIN.HUNGRY_MODEL.LOOK_BACK = 100
+
+
+# ---------------------------------------------------------------------------- #
+# CACHE options
+# ---------------------------------------------------------------------------- #
+__C.CACHE = AttrDict()
+__C.CACHE.DATASET = 'E:/tyw-data/original/clear'
+__C.CACHE.PPG = '.cache/ppg'
 
 
 def assert_and_infer_cfg():
