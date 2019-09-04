@@ -11,6 +11,7 @@ from keras.layers import LSTM
 from keras.layers.core import Dense
 from keras.models import Sequential
 from sklearn.model_selection import train_test_split
+from sklearn import svm as SVM
 
 from tyw.configs.config import cfg
 
@@ -37,6 +38,11 @@ def lstm():
     )
     print("Compilation Time : ", time.time() - start)
     return model
+
+
+def svm():
+    clf = SVM.SVC()
+    return clf
 
 
 class HungryModel(object):

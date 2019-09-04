@@ -7,6 +7,7 @@
 import os.path as osp
 import pandas as pd
 from tqdm import tqdm
+import mmcv
 import cvtools
 
 from tyw.configs.config import merge_cfg_from_file, cfg
@@ -47,7 +48,7 @@ class DataProcessor:
         self._cache = Cache(cfg.CACHE.DATASET)
         print('Loading Dataset...')
         if cfg.PROCESSOR.USE_CLEAR:
-            self.dataset = cvtools.load(
+            self.dataset = mmcv.load(
                 osp.join(cfg.DATA_SRC, 'data_info.json'))
         else:
             file_list = cvtools.get_files_list(
@@ -75,7 +76,7 @@ class DataProcessor:
                 # save clear data
                 filename = osp.join(cfg.CLEAR_SRC, file_id + '.pkl')
                 cvtools.makedirs(filename)
-                cvtools.dump(data, filename)
+                mmcv.dump(data, filename)
                 self._cache.put(file_id, filename)
             except Exception as e:
                 print(file, e)
@@ -116,7 +117,7 @@ class DataProcessor:
         return file_info
 
     def save(self, filename='data_info.json'):
-        cvtools.dump(self.dataset, filename)
+        mmcv.dump(self.dataset, filename)
 
 
 if __name__ == '__main__':
