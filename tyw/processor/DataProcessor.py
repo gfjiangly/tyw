@@ -45,17 +45,17 @@ class DataProcessor:
             'CH13': 'EDA'
         }
         self.dataset = []
-        self._cache = Cache(cfg.CACHE.DATASET)
+        self._cache = Cache(cfg.CACHE.CLEAR)
         print('Loading Dataset...')
         if cfg.PROCESSOR.USE_CLEAR:
-            self.dataset = mmcv.load(
-                osp.join(cfg.DATA_SRC, 'data_info.json'))
+            self.dataset = mmcv.load(cfg.DATA)
         else:
             file_list = cvtools.get_files_list(
-                cfg.DATA_SRC, file_type='.txt')
+                cfg.DATA, file_type='.txt')
             for file in tqdm(file_list):
                 file_info = self.parsing_ann(
-                    osp.join(cfg.ANN_SRC, osp.basename(file)))
+                    osp.join(cfg.PROCESSOR.ANN_SRC,
+                             osp.basename(file)))
                 self.split_channels(file, file_info)
                 self.dataset.append(file_info)
 

@@ -24,41 +24,25 @@ __C = AttrDict()
 cfg = __C
 
 __C.DEBUG = False
-
-__C.DATA_SRC = 'data/'
-__C.ANN_SRC = 'anns/'
-__C.CLEAR_SRC = 'clear/'
+__C.DATA = 'data/'
 
 # ---------------------------------------------------------------------------- #
 # draw options
 # ---------------------------------------------------------------------------- #
 __C.PROCESSOR = AttrDict()
 __C.PROCESSOR.USE_CLEAR = False
+__C.PROCESSOR.ANN_SRC = 'E:/tyw-data/original/anns'
 __C.PROCESSOR.DISCARD = 0
 
-__C.LOOK_BACK = 200
-
-__C.SAVE_CSV = False
 
 # Random note: avoid using '.ON' as a config key since yaml converts it to True;
 # prefer 'ENABLED' instead
-
-# ---------------------------------------------------------------------------- #
-# draw options
-# ---------------------------------------------------------------------------- #
-__C.DRAW = AttrDict()
-__C.DRAW.PATH = 'draw/'
-__C.DRAW.EDA_WHOLE = False
-__C.DRAW.EDA_FEATURES = False
-__C.DRAW.EDA_FILES_MEAN = False
-__C.DRAW.EDA_FRAGMENTS = False
 
 
 # ---------------------------------------------------------------------------- #
 # PPG options
 # ---------------------------------------------------------------------------- #
 __C.PPG = AttrDict()
-__C.PPG.CACHE = '.cache'
 __C.PPG.LOOK_BACK = 100
 __C.PPG.THRESHOLD = 200
 __C.PPG.INTERVAL_UP_THRESHOLD = 3000
@@ -114,8 +98,20 @@ __C.TRAIN.HUNGRY_MODEL.CLASS_NUM = 2
 # CACHE options
 # ---------------------------------------------------------------------------- #
 __C.CACHE = AttrDict()
-__C.CACHE.DATASET = 'E:/tyw-data/original/clear'
+__C.CACHE.CLEAR = 'E:/tyw-data/original/clear'
 __C.CACHE.PPG = '.cache/ppg'
+
+
+# ---------------------------------------------------------------------------- #
+# draw options
+# ---------------------------------------------------------------------------- #
+__C.DRAW = AttrDict()
+__C.DRAW.PPG = 'E:/tyw-data/draw/ppg'
+__C.DRAW.PATH = 'draw/'
+__C.DRAW.EDA_WHOLE = False
+__C.DRAW.EDA_FEATURES = False
+__C.DRAW.EDA_FILES_MEAN = False
+__C.DRAW.EDA_FRAGMENTS = False
 
 
 def assert_and_infer_cfg():

@@ -1,19 +1,9 @@
 DEBUG: False
-DATA_SRC: 'E:/tyw-data/original/rename-txt'
-ANN_SRC: 'E:/tyw-data/original/anns'
-CLEAR_SRC: 'E:/tyw-data/original/clear'
+DATA: 'E:/tyw-data/original/rename-txt'
 PROCESSOR:
   USE_CLEAR: False
   DISCARD: 300000
-DRAW:
-  EDA_WHOLE: False
-  EDA_FEATURES: False
-  EDA_FILES_MEAN: False
-  EDA_FRAGMENTS: False
-LOOK_BACK: 200
-SAVE_CSV: False
 PPG:
-  CACHE: 'E:/tyw-data/cache/ppg'
   LOOK_BACK: 200
   THRESHOLD: 200
   INTERVAL_UP_THRESHOLD: 3000
@@ -32,3 +22,7 @@ TRAIN:
     COLUMN_NUM: 1
     LAYERS: [1, 30, 20, 2]
     EPOCHS: 32
+
+CACHE:
+  CLEAR: 'E:/tyw-data/original/clear'
+  PPG: 'E:/tyw-data/cache/ppg'

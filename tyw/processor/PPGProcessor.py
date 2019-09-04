@@ -29,7 +29,7 @@ class PPGProcessor:
     features are inlcude PPG Waveform extreme max points(PPG_H),
     extreme min points(PPG_L) and cycle(PPG_T).
     """
-    def __init__(self, cache=cfg.PPG.CACHE):
+    def __init__(self, cache=cfg.CACHE.PPG):
         self._cache = Cache(cache)
         self.feat_name = ['index', 'ppg_h', 'ppg_l', 'ppg_t']
 

@@ -40,7 +40,7 @@ class HungryLoader(DataProcessor):
     def prep_train_data(self):
         batch_data_X = np.empty(shape=(0, self.look_back, self.column_num))
         batch_data_Y = np.empty(shape=(0, self.class_num))
-        ppg_processor = PPGProcessor(cache=cfg.PPG.CACHE)
+        ppg_processor = PPGProcessor(cache=cfg.CACHE.PPG)
         for file, label in zip(self.dataX, self.dataY):
             # 现在仅用到PPG特征
             ppg_feats = ppg_processor.extract_feats(file)
