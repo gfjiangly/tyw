@@ -29,15 +29,15 @@ def draw_class_distribution(y,
 
 
 def draw_dataframe(data,
-                   dst,
                    col,
                    im_size=(20 * 4, 5),
-                   show_value=None):
+                   show_value=None,
+                   dst='draw.png'):
     """根据列名选择DataFrame的列，绘制图像
     """
     if not isinstance(data, (pd.DataFrame,)):
         print('!not supported data type: {}'.format(type(data)))
-    ax = data.ix[:, col].plot(sharey=False, figsize=im_size, grid=True)
+    ax = data.loc[:, col].plot(sharey=False, figsize=im_size, grid=True)
     fig = ax.get_figure()
     if np.max(data.index.values) - np.min(data.index.values) < 200:
         tick_spacing = 5
@@ -53,7 +53,7 @@ def draw_dataframe(data,
             ticker.MultipleLocator(tick_spacing))
     if show_value is not None:
         x = np.min(data.index.values)
-        y = data.ix[:, col].max().values[0]
+        y = data.loc[:, col].max().values[0]
         value = str(show_value)
         ax.text(x, y, value)
     # save draw
@@ -64,10 +64,10 @@ def draw_dataframe(data,
 
 def draw_dataframe_list(data_list,
                         color_list,
-                        dst,
                         col,
                         im_size=None,
-                        tick_spacing=None):
+                        tick_spacing=None,
+                        dst='draw.png'):
     """根据列名选择DataFrame的列，绘制图像
     """
     colors = ['green', 'red', 'skyblue', 'blue']
@@ -80,7 +80,7 @@ def draw_dataframe_list(data_list,
         plt.grid()  # 设置为网格
     for index, data in enumerate(data_list):
         x = data.index.values
-        y = data.ix[:, col].values
+        y = data.loc[:, col].values
         plt.plot(x, y, color=colors[color_list[index]])
     # save draw
     cvtools.makedirs(dst)

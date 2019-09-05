@@ -43,7 +43,7 @@ class HungryLoader(DataProcessor):
         ppg_processor = PPGProcessor(cache=cfg.CACHE.PPG)
         for file, label in zip(self.dataX, self.dataY):
             # 现在仅用到PPG特征
-            ppg_feats = ppg_processor.extract_feats(file)
+            ppg_feats = ppg_processor.extract_ppg_t(file)
             assert self.column_num == ppg_feats.shape[1]
             X, Y = self._split_data(ppg_feats, label)
             batch_data_X = np.vstack((batch_data_X, X))  # batch维度

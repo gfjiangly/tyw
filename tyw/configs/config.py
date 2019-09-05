@@ -106,7 +106,8 @@ __C.CACHE.PPG = '.cache/ppg'
 # draw options
 # ---------------------------------------------------------------------------- #
 __C.DRAW = AttrDict()
-__C.DRAW.PPG = 'E:/tyw-data/draw/ppg'
+__C.DRAW.PPG = False
+__C.DRAW.PPG_PATH = 'E:/tyw-data/draw/ppg'
 __C.DRAW.PATH = 'draw/'
 __C.DRAW.EDA_WHOLE = False
 __C.DRAW.EDA_FEATURES = False

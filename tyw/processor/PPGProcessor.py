@@ -13,6 +13,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 from tyw.configs.config import cfg
 from tyw.utils.cache import Cache
+from tyw.utils.draw import draw_dataframe
 
 
 class Pulse:
@@ -33,24 +34,30 @@ class PPGProcessor:
         self._cache = Cache(cache)
         self.feat_name = ['index', 'ppg_h', 'ppg_l', 'ppg_t']
 
+    def extract_ppg_t(self, file):
+        ppg_feats = self.extract_feats(file)
+        ppg_feats = ppg_feats['ppg_t'].to_frame()
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        feats = scaler.fit_transform(ppg_feats.values)
+        return feats
+
     def extract_feats(self, file):
         file_id = osp.splitext(osp.basename(file))[0]
         cache = self._cache.get(file_id)
         if cache is not None:
-            feats = mmcv.load(cache)
+            self.feats = mmcv.load(cache)
         else:
             data = mmcv.load(file)['PPG']
             ppg = list(data)
-            feats = self._extract_feats(ppg)
+            self.feats = self._extract_feats(ppg)
             if file_id is not None:
                 file = osp.join(self._cache.cache_path, file_id + '.pkl')
                 cvtools.makedirs(file)
-                mmcv.dump(feats, file)
+                mmcv.dump(self.feats, file)
                 self._cache.put(file_id, file)
-        feats = feats['ppg_t'].to_frame()
-        scaler = MinMaxScaler(feature_range=(0, 1))
-        feats = scaler.fit_transform(feats.values)
-        return feats
+        if cfg.DRAW:
+            self.draw(file_id)
+        return self.feats
 
     def _extract_feats(self, data):
         count = 0
@@ -91,4 +98,9 @@ class PPGProcessor:
             if data[index] < data[i]:
                 return False
         return True
+
+    def draw(self, file_id):
+        draw_dataframe(self.feats, ['ppg_t'],
+                       dst=osp.join(cfg.DRAW.PPG_PATH, file_id+'.png'))
+
 

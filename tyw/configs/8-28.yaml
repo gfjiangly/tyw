@@ -26,3 +26,7 @@ TRAIN:
 CACHE:
   CLEAR: 'E:/tyw-data/original/clear'
   PPG: 'E:/tyw-data/cache/ppg'
+
+DRAW:
+  PPG: True
+  PPG_PATH: 'E:/tyw-data/draw/ppg'
