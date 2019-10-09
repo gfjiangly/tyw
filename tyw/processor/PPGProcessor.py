@@ -55,7 +55,7 @@ class PPGProcessor:
                 cvtools.makedirs(file)
                 mmcv.dump(self.feats, file)
                 self._cache.put(file_id, file)
-        if cfg.DRAW:
+        if cfg.DRAW.PPG:
             self.draw(file_id)
         return self.feats
 

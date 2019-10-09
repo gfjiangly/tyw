@@ -20,6 +20,7 @@ TRAIN:
   HUNGRY_MODEL:
     TYPE: 'lstm'
     COLUMN_NUM: 1
+    LOOK_BACK: 500
     LAYERS: [1, 30, 20, 2]
     EPOCHS: 32
 
@@ -28,5 +29,5 @@ CACHE:
   PPG: 'E:/tyw-data/cache/ppg'
 
 DRAW:
-  PPG: True
+  PPG: False
   PPG_PATH: 'E:/tyw-data/draw/ppg'

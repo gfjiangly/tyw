@@ -20,3 +20,9 @@ def down_sample(data, interval=2):
         data = None
         print('!!!Warning: not supported data type')
     return data
+
+
+def calc_variance(data):
+    var = np.var(data, axis=(-2, -1))
+    print(var.shape)
+    return var
