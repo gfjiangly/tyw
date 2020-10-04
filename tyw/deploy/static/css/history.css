@@ -1,0 +1,11 @@
+thead th {
+    color: #5F9EA0;
+}
+
+.search-box {
+    padding-bottom: 20px;
+}
+
+.search-box input {
+    width: 200px;
+}
