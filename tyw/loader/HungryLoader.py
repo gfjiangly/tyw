@@ -19,6 +19,7 @@ class HungryLoader(DataProcessor):
         self.column_num = cfg.TRAIN.HUNGRY_MODEL.COLUMN_NUM
         self.class_num = cfg.TRAIN.HUNGRY_MODEL.CLASS_NUM
         self.look_back = cfg.TRAIN.HUNGRY_MODEL.LOOK_BACK
+        # self.look_back = 4
         self.dataX = []
         self.dataY = []
         for data in self.dataset:
@@ -29,6 +30,7 @@ class HungryLoader(DataProcessor):
                 if 'PPG' in data['signals']:
                     signals = data['filename']
                 self.dataX.append(signals)
+        self.ppg_processor = PPGProcessor(cache=cfg.CACHE.PPG)
 
     def get_train_data(self, filter_func=None):
         assert len(self.dataX) == len(self.dataY)
@@ -38,12 +40,11 @@ class HungryLoader(DataProcessor):
     def prep_train_data(self, filter_func=None):
         batch_data_X = np.empty(shape=(0, self.look_back, self.column_num))
         batch_data_Y = np.empty(shape=(0, self.class_num))
-        ppg_processor = PPGProcessor(cache=cfg.CACHE.PPG)
         for file, label in zip(self.dataX, self.dataY):
             if filter_func and filter_func(file):
                 continue
             # 现在仅用到PPG特征
-            ppg_feats = ppg_processor.extract_ppg_t(file)
+            ppg_feats = self.ppg_processor.extract_ppg_t(file)
             assert self.column_num == ppg_feats.shape[1]
             X, Y = self._split_data(ppg_feats, label)
             try:
@@ -68,6 +69,27 @@ class HungryLoader(DataProcessor):
             label = self.class_num - 1
         Y[:, label] = 1  # one hot encode
         return np.array(X), Y
+
+    def process_test_data(self, ppg):
+        feats = self.ppg_processor.extract_feats_from_ppg(ppg)
+        feats = feats['ppg_t']
+        feats = feats.values
+        overlap = 0.8
+        X = []
+        if 0 < len(feats) < self.look_back:
+            X.append(feats)
+        else:
+            for i in range(0, len(feats) - self.look_back,
+                           int(self.look_back * overlap)):
+                a = feats[i:(i + self.look_back)]
+                X.append(a)
+        if len(X) > 0:
+            a = np.zeros(self.look_back)
+            a[:len(X[-1])] = X[-1]
+            X[-1] = a
+        X = np.array(X)
+        X = X[..., np.newaxis]
+        return X
 
 
 if __name__ == '__main__':

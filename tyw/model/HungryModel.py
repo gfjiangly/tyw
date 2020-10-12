@@ -10,10 +10,12 @@ import time
 from keras.layers import LSTM
 from keras.layers.core import Dense
 from keras.models import Sequential
+from keras.models import load_model
 from sklearn.model_selection import train_test_split
 from sklearn import svm as SVM
 
-from tyw.configs.config import cfg
+from tyw.configs.config import merge_cfg_from_file, cfg
+from tyw.loader.HungryLoader import HungryLoader
 
 
 def lstm():
@@ -46,8 +48,12 @@ def svm():
 
 
 class HungryModel(object):
-    def __init__(self):
-        self.model = self.build_model()
+    def __init__(self, mode='train'):
+        self.mode = mode
+        if self.mode == 'train':
+            self.model = self.build_model()
+        else:
+            self.model = load_model(cfg.TEST.HUNGRY_MODEL.PATH)
         self.seq_len = cfg.TRAIN.HUNGRY_MODEL.LOOK_BACK
         self.batch_size = cfg.TRAIN.HUNGRY_MODEL.BATCH_SIZE
         self.epochs = cfg.TRAIN.HUNGRY_MODEL.EPOCHS
@@ -59,11 +65,17 @@ class HungryModel(object):
         if test_size > 0.:
             trainX, testX, trainY, testY = train_test_split(
                 trainX, trainY, test_size=test_size, random_state=2019)
-        print(time.strftime("> %Y-%m-%d %H:%M:%S", time.localtime()) + ": training...")
+        print(time.strftime("> %Y-%m-%d %H:%M:%S",
+                            time.localtime()) + ": training...")
         # 模型训练
-        self.model.fit(trainX, trainY, batch_size=self.batch_size,
-                       epochs=self.epochs, validation_split=0.2, verbose=1, shuffle=True)
-        print(time.strftime("> %Y-%m-%d %H:%M:%S", time.localtime()) + "train end")
+        self.model.fit(trainX, trainY,
+                       batch_size=self.batch_size,
+                       epochs=self.epochs,
+                       validation_split=0.2,
+                       verbose=1,
+                       shuffle=True)
+        print(time.strftime("> %Y-%m-%d %H:%M:%S",
+                            time.localtime()) + ": train end")
 
         # val阶段
         if test_size > 0.:
@@ -73,8 +85,16 @@ class HungryModel(object):
             print('test accuracy: ', accuracy)
 
     def test(self, testX):
-        pass
+        hungry_pred = self.model.predict_classes(testX)
+        print('for hungry test: {}'.format(hungry_pred))
+        return hungry_pred
 
 
 if __name__ == '__main__':
-    pass
+    cfg_file = '../configs/8-28.yaml'
+    merge_cfg_from_file(cfg_file)
+    hungryDataLoder = HungryLoader()
+    X, Y = hungryDataLoder.get_train_data()
+
+    hungry_model = HungryModel()
+    hungry_model.train(X, Y)

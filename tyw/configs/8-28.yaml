@@ -20,7 +20,7 @@ TRAIN:
   HUNGRY_MODEL:
     TYPE: 'lstm'
     COLUMN_NUM: 1
-    LOOK_BACK: 500
+    LOOK_BACK: 200
     LAYERS: [1, 30, 20, 2]
     EPOCHS: 32
 
@@ -31,3 +31,7 @@ CACHE:
 DRAW:
   PPG: False
   PPG_PATH: 'E:/tyw-data/draw/ppg'
+
+TEST:
+  HUNGRY_MODEL:
+    PATH: 'E:/体域网项目/codes/tyw/tyw/model_file/200-30-20-0.869565_cont.h5'

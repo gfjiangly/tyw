@@ -5,8 +5,15 @@ import flask
 import cvtools
 import os
 import os.path as osp
-from tyw.deploy import dao
 import time
+import pickle
+import numpy as np
+
+from tyw.deploy import dao
+from tyw.loader.HungryLoader import HungryLoader
+from tyw.model.HungryModel import HungryModel
+from tyw.configs.config import merge_cfg_from_file
+
 
 app = flask.Flask(__name__)
 UPLOAD_FOLDER = 'upload'
@@ -20,6 +27,11 @@ logger = cvtools.get_logger('INFO', name='deploy_tyw_model')
 logger = cvtools.logger_file_handler(logger,
                                      log_save_root + '/deploy_tyw_model.log',
                                      mode='a')
+
+cfg_file = '../configs/8-28.yaml'
+merge_cfg_from_file(cfg_file)
+hungry_model = HungryModel(mode='test')
+hungry_model.test(np.zeros((1, 200, 1)))
 
 
 # 根接口
@@ -38,14 +50,25 @@ def upload_image():
     filename = flask.request.form['filename'][:-4]
     # trial_time = flask.request.form
     if f:
-        data = f.read()
+        df = pickle.loads(f.read())
 
         # 获取文件的一些属性，存储到redis
         file_attr = filename.split("_")
-        result_attr = {'name': file_attr[0], 'exper_time': file_attr[1], 'trial_time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}
+        result_attr = {
+            'name': file_attr[0],
+            'exper_time': file_attr[1],
+            'trial_time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        }
 
         # 将此处的result换为调用算法后的结果
-        result = {"aa": 1, "bb": 2, "cc": 3}
+        hungry_loader = HungryLoader()
+        ppg = hungry_loader.process_test_data(df['PPG'])
+        if len(ppg) == 0:
+            print('饥饿采集数据太短，请增加采集时间！')
+            hungry = -1
+        else:
+            hungry = hungry_model.test(ppg)
+        result = {"hungry": hungry, "bb": 2, "cc": 3}
 
         # 持久化数据
         dao.setResult(filename, result_attr, result)

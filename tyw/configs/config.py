@@ -104,6 +104,14 @@ __C.TRAIN.TIRED_MODEL.CLASS_NUM = 2
 
 
 # ---------------------------------------------------------------------------- #
+# TEST options
+# ---------------------------------------------------------------------------- #
+__C.TEST = AttrDict()
+__C.TEST.HUNGRY_MODEL = AttrDict()
+__C.TEST.HUNGRY_MODEL.PATH = '../model_file/200-30-20-0.869565_cont.h5'
+
+
+# ---------------------------------------------------------------------------- #
 # CACHE options
 # ---------------------------------------------------------------------------- #
 __C.CACHE = AttrDict()
@@ -158,7 +166,7 @@ def get_output_dir(datasets, training=True):
 
 def merge_cfg_from_file(cfg_filename):
     """Load a yaml config file and merge it into the global config."""
-    with open(cfg_filename, 'r') as f:
+    with open(cfg_filename, 'r', encoding='UTF-8') as f:
         yaml_cfg = AttrDict(yaml.load(f, Loader=yaml.FullLoader))
     _merge_a_into_b(yaml_cfg, __C)
 

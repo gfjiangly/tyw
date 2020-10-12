@@ -42,6 +42,10 @@ class PPGProcessor:
         return feats
 
     def extract_feats(self, file):
+        """废弃"""
+        return self.extract_feats_from_file(file)
+
+    def extract_feats_from_file(self, file):
         file_id = osp.splitext(osp.basename(file))[0]
         cache = self._cache.get(file_id)
         if cache is not None:
@@ -59,7 +63,11 @@ class PPGProcessor:
             self.draw(file_id)
         return self.feats
 
+    def extract_feats_from_ppg(self, ppg):
+        return self._extract_feats(ppg)
+
     def _extract_feats(self, data):
+        data = data.reset_index(drop=True)
         count = 0
         ppg_h = -sys.maxsize
         max_interval = -sys.maxsize
@@ -68,7 +76,7 @@ class PPGProcessor:
         up_threshold = 0
         interval = 0
         res = []
-        for i in range(10000, len(data) - 10000):
+        for i in range(cfg.PPG.THRESHOLD, len(data) - cfg.PPG.THRESHOLD):
             if self._judge(data, i) and interval > 5 * cfg.PPG.THRESHOLD:
                 if count != 0:
                     if interval < cfg.PPG.INTERVAL_UP_THRESHOLD:
@@ -94,6 +102,7 @@ class PPGProcessor:
         return res
 
     def _judge(self, data, index):
+        """判断是否为极大值点"""
         for i in range(index - cfg.PPG.THRESHOLD, index + cfg.PPG.THRESHOLD):
             if data[index] < data[i]:
                 return False
