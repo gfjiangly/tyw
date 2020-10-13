@@ -108,7 +108,10 @@ __C.TRAIN.TIRED_MODEL.CLASS_NUM = 2
 # ---------------------------------------------------------------------------- #
 __C.TEST = AttrDict()
 __C.TEST.HUNGRY_MODEL = AttrDict()
+__C.TEST.HUNGRY_MODEL.OPEN = False
 __C.TEST.HUNGRY_MODEL.PATH = '../model_file/200-30-20-0.869565_cont.h5'
+__C.TEST.FEAR_MODEL = AttrDict()
+__C.TEST.FEAR_MODEL.OPEN = False
 
 
 # ---------------------------------------------------------------------------- #

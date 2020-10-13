@@ -12,7 +12,9 @@ import numpy as np
 from tyw.deploy import dao
 from tyw.loader.HungryLoader import HungryLoader
 from tyw.model.HungryModel import HungryModel
-from tyw.configs.config import merge_cfg_from_file
+from tyw.loader.FearLoader import FearLoader
+from tyw.model.FearModel import FearModel
+from tyw.configs.config import merge_cfg_from_file, cfg
 
 
 app = flask.Flask(__name__)
@@ -32,6 +34,7 @@ cfg_file = '../configs/8-28.yaml'
 merge_cfg_from_file(cfg_file)
 hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
+fear_model = FearModel(cfg)
 
 
 # 根接口
@@ -61,14 +64,23 @@ def upload_image():
         }
 
         # 将此处的result换为调用算法后的结果
-        hungry_loader = HungryLoader()
-        ppg = hungry_loader.process_test_data(df['PPG'])
-        if len(ppg) == 0:
-            print('饥饿采集数据太短，请增加采集时间！')
-            hungry = -1
-        else:
-            hungry = hungry_model.test(ppg)
-        result = {"hungry": hungry, "bb": 2, "cc": 3}
+        # 调用饥饿模型
+        hungry = 0  # 0-未开启测试
+        if cfg.TEST.HUNGRY_MODEL.OPEN:
+            hungry_loader = HungryLoader()
+            ppg = hungry_loader.process_test_data(df['PPG'])
+            if len(ppg) == 0:
+                print('饥饿采集数据太短，请增加采集时间！')
+                hungry = -1
+            else:
+                hungry = hungry_model.test(ppg)
+        # 调用恐惧模型
+        fear = 0
+        if cfg.TEST.FEAR_MODEL.OPEN:
+            fear_loader = FearLoader()
+            eda_feats = fear_loader.process_test_data(df['EDA'])
+            fear = fear_model.test(eda_feats)
+        result = {"hungry": hungry, "fear": fear, "cc": 3}
 
         # 持久化数据
         dao.setResult(filename, result_attr, result)

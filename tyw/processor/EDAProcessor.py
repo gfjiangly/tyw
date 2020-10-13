@@ -28,6 +28,62 @@ class EDAProcess:
         self.eda_data = eda_data
         self.stat_files_mean = {'fear': [], 'nomal': []}
 
+    def extract_feats_from_eda(self, eda_data):
+        data = eda_data.to_frame()
+        data = down_sample(data, interval=cfg.EDA.DOWN_SAMPLE)
+        look_back = cfg.EDA.LOOK_BACK
+        features_dict = {
+            'mean': [],
+            'maximum': [],
+            'minimum': [],
+            'max-min': []
+        }
+
+        data_fragments = []
+        color_list = []
+        for i in range(0, len(data) - look_back, int(look_back * 0.9)):
+            a = data[i:(i + look_back)]
+            data_fragments.append(a)
+            # 转置(或transpose)之后可能会出现某一维shape为1（如一行转成一列）
+            # 因此需要去掉多余维度，否则可能会带来一些切片问题x[np.argmax(x)]越界问题
+            # x = a.values.transpose((1, 0))    # 等同于.T
+            x = a.values.T
+            x = np.squeeze(x)
+            feature_dict = {}
+
+            if cfg.EDA.FEATS_MEAN:
+                mean = ts_feature.mean(x)
+                # mean_change只能按行处理，
+                # 内部用的np.diff函数并没有指定axis，
+                # 所以只有一列时，np.diff是空，最后得到nan
+                mean_change = ts_feature.mean_change(x)
+                feature_dict['mean'] = float('%.6f' % mean)
+                feature_dict['mean_change'] = float('%.6f' % mean_change)
+                features_dict['mean'].append(mean)
+
+            if cfg.EDA.FEATS_MAX_MIN:
+                # maximum = ts_feature.maximum(x)
+                # minimum = ts_feature.minimum(x)
+                max_index = np.argmax(x)
+                maximum = x[max_index]
+                min_index = np.argmin(x)
+                minimum = x[min_index]
+                feature_dict['maximum'] = float('%.6f' % maximum)
+                feature_dict['minimum'] = float('%.6f' % minimum)
+                features_dict['maximum'].append(maximum)
+                features_dict['minimum'].append(minimum)
+                features_dict['max-min'].append(maximum - minimum)
+                if maximum - minimum > 1:
+                    if max_index > min_index:
+                        color_list.append(1)
+                    else:
+                        color_list.append(2)
+                else:
+                    color_list.append(0)
+        for feat in features_dict:
+            features_dict[feat] = np.array(features_dict[feat])
+        return features_dict
+
     def extract_feats(self, eda_data, file_id=None):
         """
         eda_data is a dict, dict{'data': DataFrame, 'file_id': str, 'category_id': int}
@@ -43,7 +99,12 @@ class EDAProcess:
 
         data = down_sample(data, interval=cfg.EDA.DOWN_SAMPLE)
         look_back = cfg.EDA.LOOK_BACK
-        features_dict = {'mean': [], 'maximum': [], 'minimum': [], 'max-min': []}
+        features_dict = {
+            'mean': [],
+            'maximum': [],
+            'minimum': [],
+            'max-min': []
+        }
 
         im_index = 0
 
