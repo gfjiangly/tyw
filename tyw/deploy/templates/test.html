@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/mloading/jquery.mloading.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/mloading/jquery.mloading.js"></script>
+    <script src="/static/js/common.js"></script>
+</head>
+<body>
+    <button type="button" id="btnTest">遮罩页面</button>
+    <script>
+        $(function(){
+            $("#btnTest").click(function(){
+                success_prompt("nice")
+                upload_loading()
+            });
+        });
+    </script>
+</body>
+</html>

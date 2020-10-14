@@ -57,17 +57,104 @@ $('#search-input').on('input propertychange', function() {
 });
 
 
+// 填充表格内容
 var fill_table = function(domId, data) {
     var resDom = '';
 
     for(var i = 0; i < data.length; i++) {
         resDom = resDom + '<tr>';
         resDom = resDom + '<td>' + data[i]["filename"] + '</td>';
-        resDom = resDom + '<td>' + data[i]["trial_time"] + '</td>';
+        resDom = resDom + '<td>' + data[i]["upload_time"] + '</td>';
         resDom = resDom + '<td>' + data[i]["aa"] + '</td>';
         resDom = resDom + '<td>' + data[i]["bb"] + '</td>';
         resDom = resDom + '<td>' + data[i]["cc"] + '</td>';
+        resDom = resDom + '<td><button type="button" class="retrial-btn btn-xs btn-success" id="retrial-' + data[i]["id"] +
+                          '">重测</button><button type="button" class="delete-btn btn-xs btn-danger" id="delete-' + data[i]["id"] +
+                          '">删除</button><td>';
         resDom = resDom + '</tr>';
     }
+    //console.log(resDom)
     $(domId).html(resDom);
+}
+
+// 删除表格一行
+function delete_row() {
+}
+
+// 重测按钮
+$('body').on('click', '.retrial-btn', function() {
+    id = $(this).attr('id');
+    fid = id.split('-')[1]
+
+    trail_loading()
+
+    get_retrial_result(fid, function(data) {
+        hide_loading()
+        console.log(data)
+    })
+
+})
+
+// 删除按钮
+$('body').on('click', '.delete-btn', function() {
+
+    deleteDom = $(this).parent().parent()
+    var msg = "确定删除吗？"
+    if(!confirm(msg)) {
+        return
+    }
+    // 确认删除后
+    id = $(this).attr('id');
+    fid = id.split('-')[1]
+    console.log('file id: ' + fid)
+    delete_record_all(fid, function(data) {
+        // 删除成功后
+        if(data.code === success_code) {
+            deleteDom.remove()
+            success_prompt("删除成功")
+        } else {
+            fail_prompt("删除失败")
+        }
+
+    })
+
+
+
+
+
+})
+
+// 重新测试
+function get_retrial_result(fid, callback) {
+    $.ajax({
+        url: retrialUrl,
+        type: "get",
+        data: {
+            "fid": fid
+        },
+        success : function(data){
+            callback(data)
+        },
+        error: function () {
+            hide_loading();
+            alert("重测失败！");
+        }
+    })
+}
+
+// 删除记录
+function delete_record_all(fid, callback) {
+    $.ajax({
+        url: deleteAllUrl,
+        type: "post",
+        data: {
+            "fid": fid
+        },
+        success : function(data){
+            callback(data)
+        },
+        error: function () {
+            alert("删除失败！");
+        }
+    })
 }

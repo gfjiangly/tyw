@@ -1,18 +1,117 @@
-import redis
 from tyw.deploy.setting import *
+from tyw.deploy.RedisUtils import *
+from tyw.deploy.ResultBean import *
+from tyw.deploy.constant import *
 import uuid
 
 RESULT_KEY_PREFIX = 'result:'
 FILES_NAME_KEY = "files:name"
-FILES_ENCODE_KEY = 'files:encode'
+FILES_ENCODE_KEY = 'files:name.encode'
+FILES_MD5_KEY = 'files:md5'
+FILES_LIST_KEY = 'files:list'
+FILES_COUNT_KEY = 'files:count'
+
+MD5_LOCK = 'md5'
+GLOBAL_LOCK = 'global'
 
 VALID_CHARS = "/0123456789abcdefg"
 
 pool = redis.ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
 
 
+# 获取连接
 def getConn():
     return redis.Redis(connection_pool=pool, db=redis_db)
+
+
+# 判断 md5 是否存在，不是则存储
+def isMd5Existed(md5):
+    conn = getConn()
+    locked = acquire_lock_with_timeout(conn, MD5_LOCK)
+    if not locked:
+        return create_fail_bean("nolock")  # 获取不到锁
+
+    try:
+        existed = conn.sismember(FILES_MD5_KEY, md5)
+        if existed:
+            return create_fail_bean("existed")
+
+        conn.sadd(FILES_MD5_KEY, md5)
+        return create_success_bean("ok")
+
+    finally:
+        release_lock(conn, MD5_LOCK, locked)
+
+
+# 删除 MD5
+def deleteMd5(md5):
+    conn = getConn()
+    locked = acquire_lock_with_timeout(conn, MD5_LOCK)
+    if not locked:
+        return False
+
+    try:
+        conn.srem(FILES_MD5_KEY, md5)
+        return True
+
+    finally:
+        release_lock(conn, MD5_LOCK, locked)
+
+
+# 删除全部记录，但是文件本身没有删除
+def deleteRecordAll(fid):
+
+    result_key = RESULT_KEY_PREFIX + str(fid)
+
+    conn = getConn()
+    locked = acquire_lock_with_timeout(conn, GLOBAL_LOCK)
+
+    if not locked:
+        return create_fail_bean("删除失败")
+
+    try:
+        # 根据 id 拿到 MD5、filename 属性
+        pipeline = conn.pipeline(True)
+        pipeline.hmget(result_key, ['md5', 'filename'])
+        attr = pipeline.execute()[0]
+        md5 = attr[0]
+        filename = attr[1]
+
+        # 删除 fid MD5 filename result
+        pipeline.multi()
+        pipeline.srem(FILES_MD5_KEY, md5)
+        filename_id = filename + ':' + fid
+        pipeline.zrem(FILES_ENCODE_KEY, encoding(filename_id))
+        pipeline.zrem(FILES_LIST_KEY, fid)
+        pipeline.delete(result_key)
+        res_arr = pipeline.execute()
+
+        return create_success_bean("删除成功")
+
+    finally:
+        release_lock(conn, GLOBAL_LOCK, locked)
+
+
+# 获取自增 id
+def autoIncrementId():
+    return getConn().incr(FILES_COUNT_KEY)
+
+
+# 持久化文件属性（MD5，文件名，上传时间）
+def setFileAttr(filename, md5):
+    upload_timestamp = time.time()
+    file_id = autoIncrementId()
+    filename_id = filename + ':' + str(file_id)
+
+    pipeline = getConn().pipeline(True)
+
+    pipeline.zadd(FILES_LIST_KEY, {file_id: upload_timestamp})  # 将id加入 files:list
+    pipeline.zadd(FILES_ENCODE_KEY, {encoding(filename_id): 0})  # 将文件名:id编码后加入 files:name.encode
+    pipeline.hmset(RESULT_KEY_PREFIX + str(file_id), {'id': file_id,
+                                                      'md5': md5,
+                                                      "filename": filename,
+                                                      "upload_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(upload_timestamp))})
+    pipeline.execute()
 
 
 def setResult(filename, attr, result):
@@ -24,30 +123,52 @@ def setResult(filename, attr, result):
     pipeline.execute()
 
 
+# 获取全部结果
 def getAllResult():
-    conn = getConn()
-    arr = conn.sort(FILES_NAME_KEY,
-                    by=RESULT_KEY_PREFIX + '*->trial_time',
-                    get=['#', RESULT_KEY_PREFIX + '*->trial_time', RESULT_KEY_PREFIX + '*->aa',
-                         RESULT_KEY_PREFIX + '*->bb', RESULT_KEY_PREFIX + '*->cc'],
-                    desc=True,
-                    alpha=True)
+
+    # 这是之前用 set 存储文件名时，使用 sort 来获取结果的方法。
+    # conn = getConn()
+    # arr = conn.sort(FILES_NAME_KEY,
+    #                 by=RESULT_KEY_PREFIX + '*->trial_time',
+    #                 get=['#', RESULT_KEY_PREFIX + '*->trial_time', RESULT_KEY_PREFIX + '*->aa',
+    #                      RESULT_KEY_PREFIX + '*->bb', RESULT_KEY_PREFIX + '*->cc'],
+    #                 desc=True,
+    #                 alpha=True)
+
+    # 这是之前处理结果的关键代码
+    # res = []
+    # key = ['filename', 'trial_time', 'aa', 'bb', 'cc']
+    # for i in range(0, len(arr) // result_count):
+    #     j = i * result_count
+    #     sub_arr = arr[j:j + result_count]
+    #     res.append(dict(zip(key, sub_arr)))
+    #
+    # return res
+
+    pipeline = getConn().pipeline(True)
+
+    pipeline.zrevrange(FILES_LIST_KEY, 0, -1)
+    file_ids = pipeline.execute()[0]
+
+    for fid in file_ids:
+        result_key = RESULT_KEY_PREFIX + fid
+        pipeline.hmget(result_key, TABLE_ITEM)
+
+    items = pipeline.execute()
 
     res = []
-    key = ['filename', 'trial_time', 'aa', 'bb', 'cc']
-    for i in range(0, len(arr) // result_count):
-        j = i * result_count
-        sub_arr = arr[j:j + result_count]
-        res.append(dict(zip(key, sub_arr)))
+    for item in items:
+        res.append(dict(zip(TABLE_ITEM, item)))
 
     return res
 
 
+# 获取搜索结果
 def getSearchResult(prefix):
     conn = getConn()
     pipeline = conn.pipeline()
     items = auto_complete(prefix)
-    # for i in range(0, len(items)):
+
     for i in range(0, len(items)):
         filename = decoding(items[i])
         items[i] = filename
@@ -55,7 +176,8 @@ def getSearchResult(prefix):
 
     res = pipeline.execute()
     for i in range(0, len(items)):
-        res[i]['filename'] = items[i]
+        item_idx = items[i].rfind(':')
+        res[i]['filename'] = items[i][:item_idx]
 
     rev_res = []
     for i in range(len(res) - 1, -1, -1):
@@ -64,6 +186,7 @@ def getSearchResult(prefix):
     return rev_res
 
 
+# 根据前缀自动补全
 def auto_complete(prefix):
     find_range = findPrefixRange(prefix)
     identifier = str(uuid.uuid4()).replace('-', '')
@@ -98,6 +221,7 @@ def auto_complete(prefix):
     return [item for item in items if 'g' not in item]
 
 
+# 寻找前缀在 zset 中的范围
 def findPrefixRange(prefix):
     prefix = encoding(prefix)
     pos = VALID_CHARS.index(prefix[-1])
