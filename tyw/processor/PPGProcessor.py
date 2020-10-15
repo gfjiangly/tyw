@@ -49,24 +49,26 @@ class PPGProcessor:
         file_id = osp.splitext(osp.basename(file))[0]
         cache = self._cache.get(file_id)
         if cache is not None:
-            self.feats = mmcv.load(cache)
+            feats = mmcv.load(cache)
         else:
             data = mmcv.load(file)['PPG']
             ppg = list(data)
-            self.feats = self._extract_feats(ppg)
+            feats = self._extract_feats(ppg)
             if file_id is not None:
                 file = osp.join(self._cache.cache_path, file_id + '.pkl')
                 cvtools.makedirs(file)
-                mmcv.dump(self.feats, file)
+                mmcv.dump(feats, file)
                 self._cache.put(file_id, file)
         if cfg.DRAW.PPG:
-            self.draw(file_id)
-        return self.feats
+            self.draw(file_id, feats)
+        return feats
 
     def extract_feats_from_ppg(self, ppg):
         return self._extract_feats(ppg)
 
     def _extract_feats(self, data):
+        if cfg.PPG.ORIGIN_DISCARD > 0:
+            data = data[cfg.PPG.ORIGIN_DISCARD:-cfg.PPG.ORIGIN_DISCARD]
         data = data.reset_index(drop=True)
         count = 0
         ppg_h = -sys.maxsize
@@ -108,8 +110,8 @@ class PPGProcessor:
                 return False
         return True
 
-    def draw(self, file_id):
-        draw_dataframe(self.feats, ['ppg_t'],
+    def draw(self, file_id, feats):
+        draw_dataframe(feats, ['ppg_t'],
                        dst=osp.join(cfg.DRAW.PPG_PATH, file_id+'.png'))
 
 

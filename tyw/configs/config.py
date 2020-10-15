@@ -43,6 +43,7 @@ __C.PROCESSOR.DISCARD = 0
 # PPG options
 # ---------------------------------------------------------------------------- #
 __C.PPG = AttrDict()
+__C.PPG.ORIGIN_DISCARD = 0
 __C.PPG.LOOK_BACK = 100
 __C.PPG.THRESHOLD = 200
 __C.PPG.INTERVAL_UP_THRESHOLD = 3000

@@ -41,5 +41,6 @@ class Cache(object):
         return val
 
     def set(self, file):
+        """文件名（不含后缀）作为键（样本id），路径作为值"""
         key = osp.splitext(osp.basename(file))[0]
         self.put(key, file)

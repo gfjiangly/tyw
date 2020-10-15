@@ -45,6 +45,7 @@ class DataProcessor:
             'CH13': 'EDA'
         }
         self.dataset = []
+        # 创建了文件名对应清洗后的文件路径的缓存索引
         self._cache = Cache(cfg.CACHE.CLEAR)
         print('Loading Dataset...')
         if cfg.PROCESSOR.USE_CLEAR:
@@ -60,6 +61,7 @@ class DataProcessor:
                 self.dataset.append(file_info)
 
     def split_channels(self, file, file_info):
+        """从原始数据中加载有用的通道，并保存成pkl格式"""
         file_id = file_info['id']
         if self._cache.get(file_id) is None:
             try:
@@ -84,6 +86,7 @@ class DataProcessor:
         return file_info
 
     def parsing_ann(self, filename):
+        """解析文件名，生成样本的元信息"""
         file_info = dict()
         file_id = osp.splitext(osp.basename(filename))[0]
         file_info['id'] = file_id
