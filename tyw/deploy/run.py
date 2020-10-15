@@ -8,18 +8,12 @@ import os
 import os.path as osp
 import time
 import pickle
-import numpy as np
 
 from tyw.deploy import ResultBean
+from tyw.deploy.constant import *
 from tyw.deploy.setting import *
-
 from tyw.deploy import dao
-from tyw.loader.HungryLoader import HungryLoader
-from tyw.model.HungryModel import HungryModel
-from tyw.loader.FearLoader import FearLoader
-from tyw.model.FearModel import FearModel
-from tyw.configs.config import merge_cfg_from_file, cfg
-
+from tyw.deploy.ModelTrial import *
 
 app = flask.Flask(__name__)
 UPLOAD_FOLDER = 'upload'
@@ -34,12 +28,6 @@ logger = cvtools.get_logger('INFO', name='deploy_tyw_model')
 logger = cvtools.logger_file_handler(logger,
                                      log_save_root + '/deploy_tyw_model.log',
                                      mode='a')
-
-cfg_file = '../configs/8-28.yaml'
-merge_cfg_from_file(cfg_file)
-hungry_model = HungryModel(mode='test')
-hungry_model.test(np.zeros((1, 200, 1)))
-fear_model = FearModel(cfg)
 
 
 # 根接口
@@ -70,39 +58,31 @@ def upload_image():
 
     if f:
         # 保存文件
-        f.save(file_dir + '/' + md5)
+        f.save(file_dir + '/' + md5 + '.pkl')
 
         # 持久化文件属性
-        dao.setFileAttr(filename, md5)
+        fid = dao.setFileAttr(filename, md5)
 
-        # 要在这里调用算法吗
-        #
+        file_path = file_dir + '/' + md5 + '.pkl'
+        ff = open(file_path, mode='rb')
+        df = pickle.load(ff)
+        ff.close()
+
+        # 在这里调用算法
+        res = model_trial(df)
         ################
 
-        df = pickle.loads(f.read())
+        # 持久化结果
+        dao.setResult(fid, res)
 
-        # 将此处的result换为调用算法后的结果
-        # 调用饥饿模型
-        hungry = 0  # 0-未开启测试
-        if cfg.TEST.HUNGRY_MODEL.OPEN:
-            hungry_loader = HungryLoader()
-            ppg = hungry_loader.process_test_data(df['PPG'])
-            if len(ppg) == 0:
-                print('饥饿采集数据太短，请增加采集时间！')
-                hungry = -1
-            else:
-                hungry = hungry_model.test(ppg)
-        # 调用恐惧模型
-        fear = 0
-        if cfg.TEST.FEAR_MODEL.OPEN:
-            fear_loader = FearLoader()
-            eda_feats = fear_loader.process_test_data(df['EDA'])
-            fear = fear_model.test(eda_feats)
-        result = {"hungry": hungry, "fear": fear, "cc": 3}
+        return_data = []
+        for target in TARGET_ITEM:
+            return_data.append(res[target]['state'])
 
-        # 持久化数据
+        return_data = dict(zip(TARGET_ITEM, return_data))
+        return_data['fid'] = fid
 
-        item = ResultBean.create_success_bean("文件上传成功")
+        item = ResultBean.create_success_data_bean(return_data)
         return flask.jsonify(item)
     else:
         # 把 files:md5 中的记录删除
@@ -147,8 +127,50 @@ def history_search_result():
 # 重新测试接口
 @app.route('/retrial', methods=['POST'])
 def retrial_file():
-    items = []
-    return flask.jsonify(items)
+    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
+    if not osp.exists(file_dir):
+        return flask.jsonify(ResultBean.create_fail_bean("文件夹不存在"))
+
+    fid = flask.request.form['fid']
+    file_path = dao.getMd5ById(fid)
+    if file_path == "":
+        return flask.jsonify(ResultBean.create_fail_bean("文件不存在"))
+
+    file_path = file_dir + '/' + file_path + '.pkl'
+    f = open(file_path, mode='rb')
+
+    df = pickle.load(f)
+    res = model_trial(df)
+
+    f.close()
+
+    # 持久化测试结果
+    flag = dao.setResult(fid, res)
+
+    return flask.jsonify(res)
+
+
+# 查看图像入口地址
+@app.route('/graph/<path:fid>', methods=['GET'])
+def graph_entry(fid):
+    return flask.render_template("graph.html", fid=fid)
+
+
+# 获取图像数据结果
+@app.route('/graph/data', methods=['GET'])
+def get_graph_data():
+    fid = flask.request.args['fid']
+    res = dao.getGraphData(fid)
+    if res['code'] == fail_code:
+        return flask.jsonify(res)
+
+    data = res['data']
+    count = len(data)
+    for i in range(2, count):
+        data[i] = eval(data[i])
+
+    res['data'] = data
+    return flask.jsonify(res)
 
 
 # 删除接口
@@ -160,18 +182,17 @@ def delete_record_all():
 
 @app.route("/test")
 def test():
-    # str = 'hpc_2019-01-21-19-58_0_1_x'
-    # enc = dao.encoding(str)
-    # dec = dao.decoding(enc)
-    # print(enc)
-    # print(dec)
-    # idx = dao.findPrefixRange('hpc')
-    # print(idx)
-    # items = dao.getSearchResult("hp")
-    # print(items)
-    # res = dao.getAllResult()
-    dao.deleteRecordAll(1)
+    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
+
+    fid = 11
+    file_path = dao.getMd5ById(fid)
+    file_path = file_dir + '/' + file_path + '.pkl'
+    f = open(file_path, mode='rb')
+    df = pickle.load(f)
+    res = model_trial(df)
+    dao.setResult(fid, res)
     return flask.jsonify('res')
+    # return flask.render_template("test.html")
 
 
 @app.errorhandler(400)
@@ -180,23 +201,6 @@ def handle_400_error(err_msg):
     print('file uploaded aborted. file md5 is ' + md5)
     if md5 is not None:
         dao.deleteMd5(md5)
-
-
-def do_trial(file, filename):
-    if file:
-        data = file.read()
-
-        # 获取文件的一些属性，存储到redis
-        file_attr = filename.split("_")
-        result_attr = {'name': file_attr[0], 'exper_time': file_attr[1], 'trial_time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}
-
-        # 将此处的result换为调用算法后的结果
-        result = {"aa": 1, "bb": 2, "cc": 3}
-
-        # 持久化数据
-        dao.setResult(filename, result_attr, result)
-
-    return ""
 
 
 if __name__ == '__main__':

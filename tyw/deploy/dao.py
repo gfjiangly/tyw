@@ -3,16 +3,17 @@ from tyw.deploy.RedisUtils import *
 from tyw.deploy.ResultBean import *
 from tyw.deploy.constant import *
 import uuid
+import time
 
 RESULT_KEY_PREFIX = 'result:'
-FILES_NAME_KEY = "files:name"
 FILES_ENCODE_KEY = 'files:name.encode'
 FILES_MD5_KEY = 'files:md5'
 FILES_LIST_KEY = 'files:list'
 FILES_COUNT_KEY = 'files:count'
+GRAPH_KEY_PREFIX = 'graph:'
 
 MD5_LOCK = 'md5'
-GLOBAL_LOCK = 'global'
+GLOBAL_LOCK_PREFIX = 'global:'
 
 VALID_CHARS = "/0123456789abcdefg"
 
@@ -43,6 +44,20 @@ def isMd5Existed(md5):
         release_lock(conn, MD5_LOCK, locked)
 
 
+# 获取 MD5
+def getMd5ById(fid):
+    conn = getConn()
+    result_key = RESULT_KEY_PREFIX + str(fid)
+    locked = acquire_lock_with_timeout(conn, MD5_LOCK)
+    if not locked:
+        return ""
+
+    try:
+        return conn.hget(result_key, 'md5')
+    finally:
+        release_lock(conn, MD5_LOCK, locked)
+
+
 # 删除 MD5
 def deleteMd5(md5):
     conn = getConn()
@@ -62,12 +77,13 @@ def deleteMd5(md5):
 def deleteRecordAll(fid):
 
     result_key = RESULT_KEY_PREFIX + str(fid)
+    lock_name = GLOBAL_LOCK_PREFIX + str(fid)
 
     conn = getConn()
-    locked = acquire_lock_with_timeout(conn, GLOBAL_LOCK)
+    locked = acquire_lock_with_timeout(conn, lock_name)
 
     if not locked:
-        return create_fail_bean("删除失败")
+        return create_fail_bean(GET_LOCK_FAIL_MSG)
 
     try:
         # 根据 id 拿到 MD5、filename 属性
@@ -76,6 +92,9 @@ def deleteRecordAll(fid):
         attr = pipeline.execute()[0]
         md5 = attr[0]
         filename = attr[1]
+
+        if md5 is None:
+            return create_fail_bean("该文件已被删除")
 
         # 删除 fid MD5 filename result
         pipeline.multi()
@@ -89,7 +108,7 @@ def deleteRecordAll(fid):
         return create_success_bean("删除成功")
 
     finally:
-        release_lock(conn, GLOBAL_LOCK, locked)
+        release_lock(conn, lock_name, locked)
 
 
 # 获取自增 id
@@ -112,15 +131,65 @@ def setFileAttr(filename, md5):
                                                       "filename": filename,
                                                       "upload_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(upload_timestamp))})
     pipeline.execute()
+    return file_id
 
 
-def setResult(filename, attr, result):
-    pipeline = getConn().pipeline(True)
-    pipeline.sadd(FILES_NAME_KEY, filename)
-    pipeline.zadd(FILES_ENCODE_KEY, {encoding(filename): 0})
-    pipeline.hmset(RESULT_KEY_PREFIX + filename, attr)
-    pipeline.hmset(RESULT_KEY_PREFIX + filename, result)
-    pipeline.execute()
+# 设置测试结果
+def setResult(fid, result):
+    conn = getConn()
+    lock_name = GLOBAL_LOCK_PREFIX + str(fid)
+    result_key = RESULT_KEY_PREFIX + str(fid)
+
+    locked = acquire_lock_with_timeout(conn, lock_name)
+    if not locked:
+        return create_fail_bean(GET_LOCK_FAIL_MSG)
+
+    # 指标名称
+    titles = TABLE_ITEM[3:]
+
+    try:
+        pipeline = conn.pipeline(True)
+        pipeline.exists(result_key)
+        existed = pipeline.execute()[0]
+        if existed != 1:
+            return create_fail_bean(FILE_NOT_EXISTED_MSG)
+
+        keys_mapping = {'trial_time': time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))}
+
+        for title in titles:
+            data_field = title + '.' + 'data'
+            keys_mapping[title] = result[title]['state']
+            keys_mapping[data_field] = str(result[title]['data'])
+            # 设置 data
+            # data_key = GRAPH_KEY_PREFIX + title + ':' + str(fid)
+            # 本来打算用 list 来存放 data；现在将 [1,2,3] => '[1,2,3]'，存在 result:ID 里
+
+        # 设置 state
+        pipeline.hmset(result_key, keys_mapping)
+        pipeline.execute()
+
+        return create_success_bean("ok")
+
+    finally:
+        release_lock(conn, lock_name, locked)
+
+
+# 获取 graph 数据
+def getGraphData(fid):
+    result_key = RESULT_KEY_PREFIX + str(fid)
+
+    # 指标名称
+    titles = TABLE_ITEM[3:]
+    data_field = ['filename', 'trial_time']
+    for title in titles:
+        data_field.append(title + '.' + 'data')
+
+    conn = getConn()
+    if conn.exists(result_key) != 1:
+        return create_fail_bean(FILE_NOT_EXISTED_MSG)
+
+    res = conn.hmget(result_key, data_field)
+    return create_success_data_bean(res)
 
 
 # 获取全部结果

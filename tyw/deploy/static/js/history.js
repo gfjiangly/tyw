@@ -65,32 +65,43 @@ var fill_table = function(domId, data) {
         resDom = resDom + '<tr>';
         resDom = resDom + '<td>' + data[i]["filename"] + '</td>';
         resDom = resDom + '<td>' + data[i]["upload_time"] + '</td>';
-        resDom = resDom + '<td>' + data[i]["aa"] + '</td>';
-        resDom = resDom + '<td>' + data[i]["bb"] + '</td>';
-        resDom = resDom + '<td>' + data[i]["cc"] + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('hungry', data[i]["hungry"]) + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('fear', data[i]["fear"] ) + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('cc', data[i]["cc"]) + '</td>';
+        resDom = resDom + '<td><button type="button" class="graph-btn btn-xs btn-primary" id="graph-' + data[i]["id"] +
+                          '">查看</button></td>';
         resDom = resDom + '<td><button type="button" class="retrial-btn btn-xs btn-success" id="retrial-' + data[i]["id"] +
                           '">重测</button><button type="button" class="delete-btn btn-xs btn-danger" id="delete-' + data[i]["id"] +
-                          '">删除</button><td>';
+                          '">删除</button></td>';
         resDom = resDom + '</tr>';
     }
-    //console.log(resDom)
+    console.log(resDom)
     $(domId).html(resDom);
 }
 
-// 删除表格一行
-function delete_row() {
-}
 
 // 重测按钮
 $('body').on('click', '.retrial-btn', function() {
     id = $(this).attr('id');
     fid = id.split('-')[1]
 
+    tdDom = $(this).parent().prev().prev()
+
     trail_loading()
 
     get_retrial_result(fid, function(data) {
-        hide_loading()
+
         console.log(data)
+
+        // 设置新的 state
+        target_count = TARGET_ITEM.length
+        for(var i = target_count - 1; i >= 0; i--) {
+            set_target_state_text(tdDom, TARGET_ITEM[i], data[TARGET_ITEM[i]]['state'])
+            tdDom = tdDom.prev()
+        }
+        hide_loading()
+        success_prompt("测试成功")
+
     })
 
 })
@@ -117,18 +128,13 @@ $('body').on('click', '.delete-btn', function() {
         }
 
     })
-
-
-
-
-
 })
 
 // 重新测试
 function get_retrial_result(fid, callback) {
     $.ajax({
         url: retrialUrl,
-        type: "get",
+        type: "post",
         data: {
             "fid": fid
         },
@@ -158,3 +164,12 @@ function delete_record_all(fid, callback) {
         }
     })
 }
+
+// 查看曲线图
+$('body').on('click', '.graph-btn', function() {
+
+    id = $(this).attr('id');
+    fid = id.split('-')[1]
+    url = graphUrl + fid
+    window.open(url)
+})

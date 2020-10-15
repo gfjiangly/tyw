@@ -80,6 +80,17 @@ $('#upload-btn').click(function(){
                     // 上传结果处理
                     if(data.code === 1) {
                         success_prompt("上传成功")
+                        console.log(data.data)
+                        data = data.data
+                        var resDom = '';
+                        Object.keys(data).forEach(function(key){
+                             if(key !== 'fid') {
+                                resDom = resDom + '<h4>' + key + ':' + get_target_state_text_html(key, data[key]) + '</h4>';
+                             }
+                        });
+                        resDom = resDom + '<button type="button" style="margin-left: 50px; margin-top: 5px" class="view-btn btn-xs btn-default" id="view-' + data["fid"] +
+                          '">查看图像</button>';
+                        $('.trial-result').html(resDom);
                     } else {
                         fail_prompt("上传失败")
                     }
@@ -91,6 +102,17 @@ $('#upload-btn').click(function(){
 
 
 });
+
+
+// 查看曲线图
+$('body').on('click', '.view-btn', function() {
+
+    id = $(this).attr('id');
+    fid = id.split('-')[1]
+    url = graphUrl + fid
+    window.open(url)
+})
+
 
 // 上传 MD5
 function upload_file_attr(md5, callback) {
@@ -131,14 +153,6 @@ function upload_file(file, md5, filename, callback){
         contentType : false,
         success : function(data){
             callback(data)
-            // console.log(data);
-//            success_prompt("检测成功", 1200)
-//
-//            var resDom = '';
-//            Object.keys(data).forEach(function(key){
-//                 resDom = resDom + '<h4>' + key + ' : ' + data[key] + '</h4>';
-//            });
-//            $('.trial-result').html(resDom);
         },
         error: function () {
             hide_loading();

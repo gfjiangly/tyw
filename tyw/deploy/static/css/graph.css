@@ -1,0 +1,17 @@
+.graph-header {
+    padding-top = 40px;
+}
+
+.graph-header .filename {
+    color = #ccc;
+}
+
+.graph-canvas {
+    margin-top = 120px;
+}
+
+.graph-content {
+    width: 800px;
+    height:400px;
+    padding-top:50px;
+}

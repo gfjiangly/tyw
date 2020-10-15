@@ -24,6 +24,12 @@ var historyAllResultUrl = basUrl + "history/result/all";
 // 获取搜索结果
 var historySearchResultUrl = basUrl + "history/result/search";
 
+// 图像入口地址
+var graphUrl = basUrl + "graph/"
+
+// 获取图像数据
+var getGraphDataUrl = basUrl + "graph/data"
+
 // 重新测试
 var retrialUrl = "retrial";
 
@@ -46,6 +52,17 @@ var file_existed_msg = "existed";
 // 获取不到锁
 var no_lock_msg = "nolock";
 
+// 指标
+var TARGET_ITEM  = ['hungry', 'fear', 'cc'];
+
+// 指标状态
+var HUNGRY_STATE = 1;
+var NOT_HUNGRY_STATE = 0;
+var FEAR_STATE = 1;
+var NOT_FEAR_STATE = 0;
+var CC_STATE = 1;
+var NOT_CC_STATE = 0;
+var NO_STATE = -1;
 
 
 //////////// common function ////////////
@@ -148,3 +165,69 @@ var hide_loading = function() {
     mLoading_hide();
 }
 
+/////////////////////////////////////////////////////////////////
+
+// 文字信息
+/**
+ * 文字信息
+ * @param dom 显示文字的 DOM
+ * @param text 文字
+ * @param type 类型 【default, info, success, warning, fail】
+ */
+var type_color_mapping = {'default': '#ccc', 'info': '#0099FF', 'success': '#228B22', 'warning': '#FFFF00', 'fail': '#FF0000'}
+var text_rendering = function(dom, text, type) {
+    dom.text(text).css('color', type_color_mapping[type])
+}
+
+var success_text = function(dom, text) {
+    text_rendering(dom, text, 'success')
+}
+
+var default_text = function(dom, text) {
+    text_rendering(dom, text, 'default')
+}
+
+var info_text = function(dom, text) {
+    text_rendering(dom, text, 'info')
+}
+
+var warning_text = function(dom, text) {
+    text_rendering(dom, text, 'warning')
+}
+
+var fail_text = function(dom, text) {
+    text_rendering(dom, text, 'fail')
+}
+
+// 根据指标状态设置文本
+var target_text_mapping = {'hungry': ['饥饿', '不饿'], 'fear': ['恐惧', '不恐惧'], 'cc': ['cc', 'no cc']}
+var set_target_state_text = function(dom, target_title, state) {
+
+    text = target_text_mapping[target_title][state]
+
+    if(state === NO_STATE) {
+        default_text(dom, '暂无')
+    } else if(state === 0) {
+        fail_text(dom, text)
+    } else if(state === 1) {
+        success_text(dom, text)
+    }
+}
+
+// 获取某项指标对应的文字
+var get_target_state_text_html = function(target_title, state) {
+    state = parseInt(state);
+    text = target_text_mapping[target_title][state]
+    color = ''
+    if(state === NO_STATE) {
+        text = '暂无'
+
+        color = type_color_mapping['default']
+    } else if(state === 0) {
+        color = type_color_mapping['fail']
+    } else if(state === 1) {
+        color = type_color_mapping['success']
+    }
+    resDom = '<div style="color:' + color + '">' + text + '</div>';
+    return resDom;
+}
