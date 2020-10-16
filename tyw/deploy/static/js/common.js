@@ -12,6 +12,9 @@ var trialUrl = basUrl + 'trial';
 // 历史结果入口地址
 var historyUrl = basUrl + 'history';
 
+// 文件属性上传地址
+var fileAttrUploadUrl = basUrl + 'up_md5';
+
 // 文件上传地址
 var fileUploadUrl = basUrl + 'up_data';
 
@@ -19,13 +22,48 @@ var fileUploadUrl = basUrl + 'up_data';
 var historyAllResultUrl = basUrl + "history/result/all";
 
 // 获取搜索结果
-var historySearchResultUrl = basUrl + "history/result/search"
+var historySearchResultUrl = basUrl + "history/result/search";
+
+// 图像入口地址
+var graphUrl = basUrl + "graph/"
+
+// 获取图像数据
+var getGraphDataUrl = basUrl + "graph/data"
+
+// 重新测试
+var retrialUrl = "do_trial";
+
+// 删除有关该文件的所有记录
+var deleteAllUrl = 'delete/all';
+
 
 
 //////////// result constant ////////////
 var filename = "filename";
 
 
+//////////// status constant ////////////
+
+// 通用的成功代码
+var success_code = 1;
+
+// 文件已存在的消息
+var file_existed_msg = "existed";
+
+// 获取不到锁
+var no_lock_msg = "nolock";
+
+// 指标
+var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'comprehensive'];
+
+// 指标状态
+var HUNGRY_STATE = 1;
+var NOT_HUNGRY_STATE = 0;
+var FEAR_STATE = 1;
+var NOT_FEAR_STATE = 0;
+var CC_STATE = 1;
+var NOT_CC_STATE = 0;
+var NO_STATE = -1;
 
 
 //////////// common function ////////////
@@ -90,3 +128,126 @@ var alert_prompt = function(message, time)
 {
     prompt(message, 'alert-pormpt', time);
 };
+/////////////////////////////////////////////////////////////////
+
+// loading
+/**
+ * 加载中..遮罩
+ * @param text 加载文字
+ * @param dom  将 loading 套在指定元素
+ */
+var mLoading_mask = function(text, dom) {
+    text = (text === undefined) ? 'loading...' : text;
+    dom = (dom === undefined) ? $('body') : dom;
+    dom.mLoading({
+        text:text,//加载文字，默认值：加载中...
+        //icon:"",//加载图标，默认值：一个小型的base64的gif图片
+        html:false,//设置加载内容是否是html格式，默认值是false
+        content:"",//忽略icon和text的值，直接在加载框中显示此值
+        mask:true//是否显示遮罩效果，默认显示
+    });
+}
+
+var mLoading_hide = function(dom) {
+    dom = (dom === undefined) ? $('body') : dom;
+    dom.mLoading("hide");
+}
+
+var upload_loading = function() {
+    mLoading_mask("上传中...");
+}
+
+var trail_loading = function() {
+    mLoading_mask("测试中...");
+}
+
+
+var hide_loading = function() {
+    mLoading_hide();
+}
+
+/////////////////////////////////////////////////////////////////
+
+// 文字信息
+/**
+ * 文字信息
+ * @param dom 显示文字的 DOM
+ * @param text 文字
+ * @param type 类型 【default, info, success, warning, fail】
+ */
+var type_color_mapping = {'default': '#ccc', 'info': '#0099FF', 'success': '#228B22', 'warning': '#FFFF00', 'fail': '#FF0000'}
+var text_rendering = function(dom, text, type) {
+    dom.text(text).css('color', type_color_mapping[type])
+}
+
+var success_text = function(dom, text) {
+    text_rendering(dom, text, 'success')
+}
+
+var default_text = function(dom, text) {
+    text_rendering(dom, text, 'default')
+}
+
+var info_text = function(dom, text) {
+    text_rendering(dom, text, 'info')
+}
+
+var warning_text = function(dom, text) {
+    text_rendering(dom, text, 'warning')
+}
+
+var fail_text = function(dom, text) {
+    text_rendering(dom, text, 'fail')
+}
+
+// 根据指标状态设置文本
+var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态'}
+var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不健康', '健康']}
+var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够'}
+
+var set_target_state_text = function(dom, target_title, code, state) {
+    code = code.toString()
+    if(code === '1') {
+        text = target_result_mapping[target_title][state]
+
+        if(state === NO_STATE) {
+            default_text(dom, '未知')
+        } else if(state === 0) {
+            success_text(dom, text)
+        } else if(state === 1) {
+            fail_text(dom, text)
+        }
+    } else {
+        info_text(dom, code_status_mapping[code])
+    }
+
+
+}
+
+// 获取某项指标对应的文字
+var get_target_state_text_html = function(target_title, code, state) {
+    //console.log(code)
+    state = parseInt(state);
+    text = target_result_mapping[target_title][state]
+    color = ''
+    code = code.toString()
+    if(code === '1') {
+        if(state === NO_STATE) {
+            text = '未知'
+            color = type_color_mapping['default']
+        } else if(state === 0) {
+            color = type_color_mapping['success']
+        } else if(state === 1) {
+            color = type_color_mapping['fail']
+        }
+    } else {
+        color = type_color_mapping['info']
+        text = code_status_mapping[code]
+    }
+
+
+    resDom = '<span style="color:' + color + '">' + text + '</span>';
+    return resDom;
+}
+
+

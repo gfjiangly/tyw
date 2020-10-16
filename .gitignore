@@ -129,3 +129,4 @@ dmypy.json
 .git/
 *.csv
 *.pkl
+/tyw/model_file/

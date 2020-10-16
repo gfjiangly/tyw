@@ -9,3 +9,7 @@ thead th {
 .search-box input {
     width: 200px;
 }
+
+.retrial-btn {
+    margin-right: 15px
+}
