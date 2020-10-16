@@ -26,10 +26,9 @@ class HungryLoader(DataProcessor):
             if 'hungry' in data:
                 label = data['hungry']
                 self.dataY.append(label)
-                signals = []
+                # 筛选含PPG信号文件
                 if 'PPG' in data['signals']:
-                    signals = data['filename']
-                self.dataX.append(signals)
+                    self.dataX.append(data['filename'])
         self.ppg_processor = PPGProcessor(cache=cfg.CACHE.PPG)
 
     def get_train_data(self, filter_func=None):

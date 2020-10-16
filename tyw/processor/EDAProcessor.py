@@ -8,6 +8,7 @@ import os.path as osp
 import pandas as pd
 import numpy as np
 import tsfresh.feature_extraction.feature_calculators as ts_feature
+from cvtools.utils.timer import get_time_str
 
 from tyw.utils.ts_utils import down_sample
 from tyw.configs.config import cfg
@@ -38,9 +39,10 @@ class EDAProcess:
             'minimum': [],
             'max-min': []
         }
-
+        file_name = get_time_str()
         data_fragments = []
         color_list = []
+        im_index = 0
         for i in range(0, len(data) - look_back, int(look_back * 0.9)):
             a = data[i:(i + look_back)]
             data_fragments.append(a)
@@ -80,6 +82,37 @@ class EDAProcess:
                         color_list.append(2)
                 else:
                     color_list.append(0)
+            im_index += 1
+
+        if cfg.DRAW.EDA_FEATURES:
+            features = pd.DataFrame(features_dict)
+            save = osp.join(cfg.DRAW.PATH,
+                            'eda',
+                            file_name,
+                            str(im_index) + '.png')
+            draw_dataframe(features,
+                           ('mean', 'maximum', 'minimum', 'max-min'),
+                           im_size=(40, 10),
+                           dst=save)
+
+        if cfg.DRAW.EDA_WHOLE:
+            if cfg.EDA.FEATS_MAX_MIN:  # 使用到的color_list是根据此特征计算
+                # 使用不同颜色标注片段
+                save = osp.join(cfg.DRAW.PATH,
+                                'eda',
+                                file_name,
+                                'eda_whole_max_min.png')
+                draw_dataframe_list(data_fragments,
+                                    color_list,
+                                    ('EDA', ),
+                                    im_size=(im_index, 10),
+                                    dst=save,
+                                    tick_spacing=100)
+            save = osp.join(cfg.DRAW.PATH,
+                            'eda',
+                            file_name,
+                            'eda_whole.png')
+            draw_dataframe(data, ('EDA',), dst=save, im_size=(im_index, 10))
         for feat in features_dict:
             features_dict[feat] = np.array(features_dict[feat])
         return features_dict
@@ -217,25 +250,26 @@ class EDAProcess:
             save = osp.join(cfg.DRAW.PATH,
                             'eda/' + file_name + '/' + str(im_index) + '.png')
             draw_dataframe(features,
-                           save,
                            ('mean', 'maximum', 'minimum', 'max-min'),
-                           im_size=(40, 10))
+                           im_size=(40, 10),
+                           dst=save)
 
         if cfg.DRAW.EDA_WHOLE:
             if cfg.EDA.FEATS_MAX_MIN:  # 使用到的color_list是根据此特征计算
                 # 使用不同颜色标注片段
                 save = osp.join(cfg.DRAW.PATH,
-                                'eda/' + file_name + '/' + str(im_index) + '.png')
+                                'eda',
+                                file_name,
+                                str(im_index) + '.png')
                 draw_dataframe_list(data_fragments, 
                                     color_list,
-                                    save,
-                                    ('EDA', ), 
-                                    im_size=(im_index, 10), 
+                                    ('EDA', ),
+                                    im_size=(im_index, 10),
+                                    dst=save,
                                     tick_spacing=100)
             save = osp.join(cfg.DRAW.PATH,
                             'eda/' + file_name + '/' + str(im_index) + '.png')
-            draw_dataframe(data, save,
-                           ('EDA',), im_size=(im_index, 10))
+            draw_dataframe(data, ('EDA',), dst=save, im_size=(im_index, 10))
 
         for feat in features_dict:
             features_dict[feat] = np.array(features_dict[feat])
@@ -248,7 +282,7 @@ class EDAProcess:
             save = osp.join(cfg.DRAW.PATH, 'eda.png')
             draw_dataframe_list(files_feature_mean, 
                                 [1, 0],
-                                save,
-                                ('EDA',), 
-                                im_size=(20, 10), 
+                                ('EDA',),
+                                im_size=(20, 10),
+                                dst=save,
                                 tick_spacing=100)
