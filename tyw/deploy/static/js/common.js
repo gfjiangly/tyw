@@ -31,10 +31,11 @@ var graphUrl = basUrl + "graph/"
 var getGraphDataUrl = basUrl + "graph/data"
 
 // 重新测试
-var retrialUrl = "retrial";
+var retrialUrl = "do_trial";
 
 // 删除有关该文件的所有记录
 var deleteAllUrl = 'delete/all';
+
 
 
 //////////// result constant ////////////
@@ -53,7 +54,7 @@ var file_existed_msg = "existed";
 var no_lock_msg = "nolock";
 
 // 指标
-var TARGET_ITEM  = ['hungry', 'fear', 'cc'];
+var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'comprehensive'];
 
 // 指标状态
 var HUNGRY_STATE = 1;
@@ -200,34 +201,53 @@ var fail_text = function(dom, text) {
 }
 
 // 根据指标状态设置文本
-var target_text_mapping = {'hungry': ['饥饿', '不饿'], 'fear': ['恐惧', '不恐惧'], 'cc': ['cc', 'no cc']}
-var set_target_state_text = function(dom, target_title, state) {
+var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态'}
+var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不健康', '健康']}
+var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够'}
 
-    text = target_text_mapping[target_title][state]
+var set_target_state_text = function(dom, target_title, code, state) {
+    code = code.toString()
+    if(code === '1') {
+        text = target_result_mapping[target_title][state]
 
-    if(state === NO_STATE) {
-        default_text(dom, '暂无')
-    } else if(state === 0) {
-        fail_text(dom, text)
-    } else if(state === 1) {
-        success_text(dom, text)
+        if(state === NO_STATE) {
+            default_text(dom, '未知')
+        } else if(state === 0) {
+            success_text(dom, text)
+        } else if(state === 1) {
+            fail_text(dom, text)
+        }
+    } else {
+        info_text(dom, code_status_mapping[code])
     }
+
+
 }
 
 // 获取某项指标对应的文字
-var get_target_state_text_html = function(target_title, state) {
+var get_target_state_text_html = function(target_title, code, state) {
+    //console.log(code)
     state = parseInt(state);
-    text = target_text_mapping[target_title][state]
+    text = target_result_mapping[target_title][state]
     color = ''
-    if(state === NO_STATE) {
-        text = '暂无'
-
-        color = type_color_mapping['default']
-    } else if(state === 0) {
-        color = type_color_mapping['fail']
-    } else if(state === 1) {
-        color = type_color_mapping['success']
+    code = code.toString()
+    if(code === '1') {
+        if(state === NO_STATE) {
+            text = '未知'
+            color = type_color_mapping['default']
+        } else if(state === 0) {
+            color = type_color_mapping['success']
+        } else if(state === 1) {
+            color = type_color_mapping['fail']
+        }
+    } else {
+        color = type_color_mapping['info']
+        text = code_status_mapping[code]
     }
-    resDom = '<div style="color:' + color + '">' + text + '</div>';
+
+
+    resDom = '<span style="color:' + color + '">' + text + '</span>';
     return resDom;
 }
+
+

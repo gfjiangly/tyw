@@ -8,8 +8,8 @@ FILE_NOT_EXISTED_MSG = "该文件不存在"
 GET_LOCK_FAIL_MSG = "当前系统忙，请稍后再试"
 
 # 表格表头
-TABLE_ITEM = ['id', 'filename', 'upload_time', 'hungry', 'fear', 'cc']
-TARGET_ITEM = ['hungry', 'fear', 'cc']
+TABLE_ITEM = ['id', 'filename', 'upload_time', 'hungry', 'fear', 'tired', 'comprehensive']
+ALL_RESULT_ITEM = ['id', 'filename', 'upload_time', 'hungry', 'hungry.code', 'fear', 'fear.code', 'tired', 'tired.code', 'comprehensive', 'comprehensive.code']
+TARGET_ITEM = ['hungry', 'fear', 'tired', 'comprehensive']
 
-# 映射
 

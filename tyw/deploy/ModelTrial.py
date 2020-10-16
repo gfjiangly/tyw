@@ -14,7 +14,7 @@ hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
 
 
-def model_trial(df):
+def model_trial(df, config):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
     hungry = 0  # 0-未开启测试
@@ -36,10 +36,14 @@ def model_trial(df):
         eda_feats = fear_loader.process_test_data(df['EDA'])
         fear = fear_model.test(eda_feats)
 
-    fear_res = create_trial_bean(1, "ok", fear.tolist())
+    # 假装恐惧
+    fear_res = create_trial_bean(1, "ok", 1)
 
-    # cc
-    cc_res = create_trial_bean(0, "未开启测试")
+    # 调用恐惧模型
+    tired_res = create_trial_bean(0, "未开启测试")
 
-    result = {"hungry": hungry_res, "fear": fear_res, "cc": cc_res}
+    # 综合结果
+    com_res = create_trial_bean(0, "未开启测试")
+
+    result = {"hungry": hungry_res, "fear": fear_res, "tired": tired_res, "comprehensive": com_res}
     return result

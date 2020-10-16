@@ -55,6 +55,7 @@ def upload_image():
     filename = flask.request.form['filename']
     md5 = flask.request.form['md5']
     f = flask.request.files['data']
+    config = flask.request.form['config']
 
     if f:
         # 保存文件
@@ -64,31 +65,42 @@ def upload_image():
         fid = dao.setFileAttr(filename, md5)
 
         file_path = file_dir + '/' + md5 + '.pkl'
-        ff = open(file_path, mode='rb')
-        df = pickle.load(ff)
-        ff.close()
+        item = do_trial(fid, config, file_path)
 
-        # 在这里调用算法
-        res = model_trial(df)
-        ################
-
-        # 持久化结果
-        dao.setResult(fid, res)
-
-        return_data = []
-        for target in TARGET_ITEM:
-            return_data.append(res[target]['state'])
-
-        return_data = dict(zip(TARGET_ITEM, return_data))
-        return_data['fid'] = fid
-
-        item = ResultBean.create_success_data_bean(return_data)
         return flask.jsonify(item)
     else:
         # 把 files:md5 中的记录删除
         dao.deleteMd5(md5)
         item = ResultBean.create_fail_bean("文件上传失败")
         return flask.jsonify(item)
+
+
+# 算法测试接口
+@app.route('/do_trial', methods=['POST'])
+def do_trial_file():
+    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
+    if not osp.exists(file_dir):
+        return flask.jsonify(ResultBean.create_fail_bean("文件夹不存在"))
+
+    fid = flask.request.form['fid']
+    md5 = flask.request.form['md5']
+    config = flask.request.form['config']
+
+    file_path = ""
+
+    if md5 is not None and md5 != '':
+        file_path = md5
+    elif fid is not None and fid != '':
+        file_path = dao.getMd5ById(fid)
+
+    if file_path == "":
+        return flask.jsonify(ResultBean.create_fail_bean("文件不存在"))
+
+    file_path = file_dir + '/' + file_path + '.pkl'
+
+    item = do_trial(fid, config, file_path)
+
+    return flask.jsonify(item)
 
 
 # 总览模块入口
@@ -124,32 +136,6 @@ def history_search_result():
     return flask.jsonify(items)
 
 
-# 重新测试接口
-@app.route('/retrial', methods=['POST'])
-def retrial_file():
-    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
-    if not osp.exists(file_dir):
-        return flask.jsonify(ResultBean.create_fail_bean("文件夹不存在"))
-
-    fid = flask.request.form['fid']
-    file_path = dao.getMd5ById(fid)
-    if file_path == "":
-        return flask.jsonify(ResultBean.create_fail_bean("文件不存在"))
-
-    file_path = file_dir + '/' + file_path + '.pkl'
-    f = open(file_path, mode='rb')
-
-    df = pickle.load(f)
-    res = model_trial(df)
-
-    f.close()
-
-    # 持久化测试结果
-    flag = dao.setResult(fid, res)
-
-    return flask.jsonify(res)
-
-
 # 查看图像入口地址
 @app.route('/graph/<path:fid>', methods=['GET'])
 def graph_entry(fid):
@@ -180,27 +166,38 @@ def delete_record_all():
     return flask.jsonify(dao.deleteRecordAll(fid))
 
 
-@app.route("/test")
-def test():
-    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
-
-    fid = 11
-    file_path = dao.getMd5ById(fid)
-    file_path = file_dir + '/' + file_path + '.pkl'
-    f = open(file_path, mode='rb')
-    df = pickle.load(f)
-    res = model_trial(df)
-    dao.setResult(fid, res)
-    return flask.jsonify('res')
-    # return flask.render_template("test.html")
-
-
 @app.errorhandler(400)
 def handle_400_error(err_msg):
     md5 = session.get('md5')
     print('file uploaded aborted. file md5 is ' + md5)
     if md5 is not None:
         dao.deleteMd5(md5)
+
+
+def do_trial(fid, config, file_path):
+
+    f = open(file_path, mode='rb')
+
+    df = pickle.load(f)
+
+    # 算法调用处
+    res = model_trial(df, config)
+    ###################
+
+    f.close()
+
+    # 持久化测试结果
+    flag = dao.setResult(fid, res)
+
+    # return_data = []
+    # for target in TARGET_ITEM:
+    #     return_data.append(res[target]['state'])
+    #
+    # return_data = dict(zip(TARGET_ITEM, return_data))
+    # return_data['fid'] = fid
+
+    item = ResultBean.create_success_data_bean(res)
+    return item
 
 
 if __name__ == '__main__':

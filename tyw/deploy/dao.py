@@ -35,7 +35,8 @@ def isMd5Existed(md5):
     try:
         existed = conn.sismember(FILES_MD5_KEY, md5)
         if existed:
-            return create_fail_bean("existed")
+            return create_bean(2, FILE_EXISTED_MSG, getFidByMd5(md5))  # md5 存在返回 fid
+            # return create_fail_bean("existed")
 
         conn.sadd(FILES_MD5_KEY, md5)
         return create_success_bean("ok")
@@ -71,6 +72,11 @@ def deleteMd5(md5):
 
     finally:
         release_lock(conn, MD5_LOCK, locked)
+
+
+# 通过 MD5 获取 fid
+def getFidByMd5(md5):
+    return getConn().get('md5:' + md5)
 
 
 # 删除全部记录，但是文件本身没有删除
@@ -124,6 +130,7 @@ def setFileAttr(filename, md5):
 
     pipeline = getConn().pipeline(True)
 
+    pipeline.set('md5:' + md5, file_id)  # 设置 MD5 和文件id 的映射
     pipeline.zadd(FILES_LIST_KEY, {file_id: upload_timestamp})  # 将id加入 files:list
     pipeline.zadd(FILES_ENCODE_KEY, {encoding(filename_id): 0})  # 将文件名:id编码后加入 files:name.encode
     pipeline.hmset(RESULT_KEY_PREFIX + str(file_id), {'id': file_id,
@@ -154,12 +161,12 @@ def setResult(fid, result):
         if existed != 1:
             return create_fail_bean(FILE_NOT_EXISTED_MSG)
 
-        keys_mapping = {'trial_time': time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))}
+        keys_mapping = {'trial_time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))}
 
         for title in titles:
-            data_field = title + '.' + 'data'
+            code_field = title + '.' + 'code'
             keys_mapping[title] = result[title]['state']
-            keys_mapping[data_field] = str(result[title]['data'])
+            keys_mapping[code_field] = str(result[title]['code'])
             # 设置 data
             # data_key = GRAPH_KEY_PREFIX + title + ':' + str(fid)
             # 本来打算用 list 来存放 data；现在将 [1,2,3] => '[1,2,3]'，存在 result:ID 里
@@ -221,13 +228,13 @@ def getAllResult():
 
     for fid in file_ids:
         result_key = RESULT_KEY_PREFIX + fid
-        pipeline.hmget(result_key, TABLE_ITEM)
+        pipeline.hmget(result_key, ALL_RESULT_ITEM)
 
     items = pipeline.execute()
 
     res = []
     for item in items:
-        res.append(dict(zip(TABLE_ITEM, item)))
+        res.append(dict(zip(ALL_RESULT_ITEM, item)))
 
     return res
 
@@ -240,8 +247,9 @@ def getSearchResult(prefix):
 
     for i in range(0, len(items)):
         filename = decoding(items[i])
+        fid = filename[filename.rfind(':') + 1:]
         items[i] = filename
-        pipeline.hgetall(RESULT_KEY_PREFIX + filename)
+        pipeline.hgetall(RESULT_KEY_PREFIX + fid)
 
     res = pipeline.execute()
     for i in range(0, len(items)):

@@ -9,7 +9,7 @@ function get_all_result() {
         data: {},
         success: function(data){
 
-            //console.log(data);
+//            console.log(data);
             fill_table('#table-content', data);
         },
         error: function () {
@@ -65,17 +65,18 @@ var fill_table = function(domId, data) {
         resDom = resDom + '<tr>';
         resDom = resDom + '<td>' + data[i]["filename"] + '</td>';
         resDom = resDom + '<td>' + data[i]["upload_time"] + '</td>';
-        resDom = resDom + '<td>' + get_target_state_text_html('hungry', data[i]["hungry"]) + '</td>';
-        resDom = resDom + '<td>' + get_target_state_text_html('fear', data[i]["fear"] ) + '</td>';
-        resDom = resDom + '<td>' + get_target_state_text_html('cc', data[i]["cc"]) + '</td>';
-        resDom = resDom + '<td><button type="button" class="graph-btn btn-xs btn-primary" id="graph-' + data[i]["id"] +
-                          '">查看</button></td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('hungry', data[i]["hungry.code"], data[i]["hungry"]) + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('fear', data[i]["fear.code"], data[i]["fear"] ) + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('tired', data[i]["tired.code"], data[i]["tired"]) + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('comprehensive', data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
+        //resDom = resDom + '<td><button type="button" class="graph-btn btn-xs btn-primary" id="graph-' + data[i]["id"] +
+        //                  '">查看</button></td>';
         resDom = resDom + '<td><button type="button" class="retrial-btn btn-xs btn-success" id="retrial-' + data[i]["id"] +
                           '">重测</button><button type="button" class="delete-btn btn-xs btn-danger" id="delete-' + data[i]["id"] +
                           '">删除</button></td>';
         resDom = resDom + '</tr>';
     }
-    console.log(resDom)
+    //console.log(resDom)
     $(domId).html(resDom);
 }
 
@@ -85,22 +86,27 @@ $('body').on('click', '.retrial-btn', function() {
     id = $(this).attr('id');
     fid = id.split('-')[1]
 
-    tdDom = $(this).parent().prev().prev()
+    tdDom = $(this).parent().prev()
 
     trail_loading()
 
     get_retrial_result(fid, function(data) {
 
         console.log(data)
-
-        // 设置新的 state
-        target_count = TARGET_ITEM.length
-        for(var i = target_count - 1; i >= 0; i--) {
-            set_target_state_text(tdDom, TARGET_ITEM[i], data[TARGET_ITEM[i]]['state'])
-            tdDom = tdDom.prev()
-        }
         hide_loading()
-        success_prompt("测试成功")
+
+        if(data.code == -1) {
+            fail_prompt(data.msg)
+        } else {
+            // 设置新的 state
+            target_count = TARGET_ITEM.length
+            for(var i = target_count - 1; i >= 0; i--) {
+                set_target_state_text(tdDom, TARGET_ITEM[i], data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])
+                tdDom = tdDom.prev()
+            }
+
+            success_prompt("测试成功")
+        }
 
     })
 
@@ -132,12 +138,18 @@ $('body').on('click', '.delete-btn', function() {
 
 // 重新测试
 function get_retrial_result(fid, callback) {
+
+    var form = new FormData();
+    form.append("fid", fid);
+    form.append("md5", '');
+    form.append("config", TARGET_ITEM)
+
     $.ajax({
         url: retrialUrl,
         type: "post",
-        data: {
-            "fid": fid
-        },
+        data: form,
+        processData : false,
+        contentType : false,
         success : function(data){
             callback(data)
         },
