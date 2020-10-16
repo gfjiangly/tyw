@@ -1,6 +1,7 @@
 # -*- encoding:utf-8 -*-
 # @Time    : 2020/10/12 23:55
 # @Author  : jiang.g.f
+from tyw.configs.config import cfg
 from tyw.processor.DataProcessor import DataProcessor
 from tyw.processor.EDAProcessor import EDAProcess
 
@@ -8,7 +9,7 @@ from tyw.processor.EDAProcessor import EDAProcess
 class FearLoader(DataProcessor):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(cfg.PATH)
         self.files = []
         self.labels = []
         for file_info in self.files_info:

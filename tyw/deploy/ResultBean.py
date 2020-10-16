@@ -8,7 +8,7 @@ fail_code = -1
 # @param msg 消息
 # @param state 状态，如【0:饿  1:不饿 ; 0:不恐惧 1:恐惧 ; -1:未知】
 # @param data 数据，即用于绘制图像的数组数据
-def create_trial_bean(code, msg, state=-1, data=None):
+def create_trial_bean(code, msg='', state=-1, data=None):
     if data is None:
         data = []
     return {'code': code, 'msg': msg, 'state': state, 'data': data}

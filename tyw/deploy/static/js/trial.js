@@ -7,6 +7,7 @@ $('#file-upload').fileinput({
     validateInitialCount:true,
     previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
     msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+    showPreview: false
 });
 
 

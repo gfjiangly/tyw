@@ -34,34 +34,44 @@ class DataProcessor:
             ...
         ]
     """
-    def __init__(self, ):
+    def __init__(self, data_path=None, cache_path=cfg.CACHE.CLEAR):
         """
         首先要加载原始数据，经过初步处理后，分发到各个类中提取特征
         """
-        self.channel_map = {
-            'CH1': 'PPG',
-            'CH3': 'SKT',
-            'CH10': 'ECG',
-            'CH13': 'EDA'
+        # self.channel_map = {
+        #     'CH1': 'PPG',
+        #     'CH3': 'SKT',
+        #     'CH10': 'ECG',
+        #     'CH13': 'EDA'
+        # }
+        self.channels = {
+            'PPG': cfg.PPG.CHANNEL,
+            'EDA': cfg.EDA.CHANNEL,
+            'ECG': cfg.ECG.CHANNEL,
+            'SKT': cfg.SKT.CHANNEL,
         }
+        self.channel_map = dict(
+            zip(self.channels.values(), self.channels.keys())
+        )
         self.dataset = []
         self.files_info = []
-        # 创建了文件名对应清洗后的文件路径的缓存索引
-        self._cache = Cache(cfg.CACHE.CLEAR)
-        print('Loading Dataset...')
-        if cfg.PROCESSOR.USE_CLEAR:
-            # TODO：这里有问题，待修复
-            self.dataset = mmcv.load(cfg.DATA)
-        else:
-            file_list = cvtools.get_files_list(
-                cfg.DATA, file_type='.txt')
-            for file in tqdm(file_list):
-                file_info = self.parsing_ann(
-                    osp.join(cfg.PROCESSOR.ANN_SRC,
-                             osp.basename(file)))
-                self.clear_csv_file(file, file_info)
-                self.files_info.append(file_info)
-        self.dataset = self.files_info
+        if data_path:
+            # 创建了文件名对应清洗后的文件路径的缓存索引
+            self._cache = Cache(cache_path)
+            print('Loading Dataset...')
+            if cfg.PROCESSOR.USE_CLEAR:
+                # TODO：这里有问题，待修复
+                self.dataset = mmcv.load(data_path)
+            else:
+                file_list = cvtools.get_files_list(
+                    data_path, file_type='.txt')
+                for file in tqdm(file_list):
+                    file_info = self.parsing_ann(
+                        osp.join(cfg.PROCESSOR.ANN_SRC,
+                                 osp.basename(file)))
+                    self.clear_csv_file(file, file_info)
+                    self.files_info.append(file_info)
+            self.dataset = self.files_info
 
     def clear_csv_file(self, file, file_info):
         """从原始数据中加载有用的通道，并保存成pkl格式"""
@@ -126,10 +136,13 @@ class DataProcessor:
             return self.load_data_from_pkl(file_path)
 
     def load_data_from_csv(self, file):
-        """从原始数据中加载有用的通道，并保存成pkl格式"""
+        """从原始数据中读取有用的通道"""
         with open(file, 'r') as fp:
             raw_data = fp.readlines()
-        # file_info['original_name'] = raw_data[0].strip()
+        return self.load_data_from_raw_data(raw_data)
+
+    def load_data_from_raw_data(self, raw_data):
+        """从原始数据中清洗出有用的通道"""
         data = pd.DataFrame(    # 10分钟150W, 4s1W
             [item.split() for item in raw_data[46:]],
             columns=[item.strip() for item in raw_data[45].split()])
@@ -150,5 +163,5 @@ class DataProcessor:
 if __name__ == '__main__':
     cfg_file = '../configs/8-28.yaml'
     merge_cfg_from_file(cfg_file)
-    data_processor = DataProcessor()
+    data_processor = DataProcessor(cfg.DATA)
     data_processor.save(filename='E:/tyw-data/original/data_info.json')

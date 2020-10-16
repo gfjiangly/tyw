@@ -10,6 +10,7 @@ import time
 import pickle
 
 from tyw.configs.config import merge_cfg_from_file, cfg
+from tyw.processor.DataProcessor import DataProcessor
 from tyw.deploy import ResultBean
 from tyw.deploy.constant import *
 from tyw.deploy.setting import *
@@ -48,6 +49,21 @@ def upload_file_attr():
     return flask.jsonify(item)
 
 
+def parse_file(f, filename):
+    suffix = osp.splitext(filename)[-1]
+    if suffix == '.csv' or suffix == '.txt':
+        # data = str(f.read(), encoding='gbk')
+        data = list(map(lambda a: str(a, encoding='gbk'), f.readlines()))
+        data_processor = DataProcessor()
+        data = data_processor.load_data_from_raw_data(data)
+        # data_processor.save(filename)
+        return data
+    elif suffix == '.pkl':
+        return pickle.loads(f.read())
+    else:
+        raise ValueError("请上传后缀为csv或pkl的信号文件！")
+
+
 # 上传数据处理接口
 @app.route('/up_data', methods=['POST'], strict_slashes=False)
 def upload_image():
@@ -61,15 +77,12 @@ def upload_image():
     config = flask.request.form['config']
 
     if f:
-        # 保存文件
-        f.save(file_dir + '/' + md5 + '.pkl')
-
+        data = parse_file(f, filename)
         # 持久化文件属性
         fid = dao.setFileAttr(filename, md5)
-
-        file_path = file_dir + '/' + md5 + '.pkl'
-        item = do_trial(fid, config, file_path)
-
+        item = do_trial(data, fid, config)
+        # 保存文件
+        cvtools.dump_pkl(data, osp.join(file_dir, md5 + '.pkl'))
         return flask.jsonify(item)
     else:
         # 把 files:md5 中的记录删除
@@ -78,7 +91,7 @@ def upload_image():
         return flask.jsonify(item)
 
 
-# 算法测试接口
+# 算法测试接口，放在test文件夹下测试
 @app.route('/do_trial', methods=['POST'])
 def do_trial_file():
     file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
@@ -89,18 +102,17 @@ def do_trial_file():
     md5 = flask.request.form['md5']
     config = flask.request.form['config']
 
-    file_path = ""
-
+    filename = ""
     if md5 is not None and md5 != '':
-        file_path = md5
+        # 上传时通过md5定位文件
+        filename = md5
     elif fid is not None and fid != '':
-        file_path = dao.getMd5ById(fid)
-
-    if file_path == "":
+        # 重测时通过fid定位文件
+        filename = dao.getMd5ById(fid)
+    if filename == "":
         return flask.jsonify(ResultBean.create_fail_bean("文件不存在"))
 
-    file_path = file_dir + '/' + file_path + '.pkl'
-
+    file_path = osp.join(file_dir, filename + '.pkl')
     item = do_trial(fid, config, file_path)
 
     return flask.jsonify(item)
@@ -177,17 +189,10 @@ def handle_400_error(err_msg):
         dao.deleteMd5(md5)
 
 
-def do_trial(fid, config, file_path):
-
-    f = open(file_path, mode='rb')
-
-    df = pickle.load(f)
-
+def do_trial(df, fid, config):
     # 算法调用处
     res = model_trial(df, config)
     ###################
-
-    f.close()
 
     # 持久化测试结果
     flag = dao.setResult(fid, res)

@@ -184,6 +184,6 @@ class EDAProcess:
 
 if __name__ == '__main__':
     from tyw.processor.DataProcessor import DataProcessor
-    data_processor = DataProcessor()
+    data_processor = DataProcessor(cfg.DATA)
     eda_processor = EDAProcess()
     # 测试见FearLoader.py

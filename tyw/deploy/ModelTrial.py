@@ -15,17 +15,18 @@ fear_model = FearModel(cfg)
 def model_trial(df, config):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
-    hungry = 0  # 0-未开启测试
+    hungry_code = 0  # 0-未开启测试
     if cfg.TEST.HUNGRY_MODEL.OPEN:
         hungry_loader = HungryLoader()
         ppg = hungry_loader.process_test_data(df['PPG'])
         if len(ppg) == 0:
             print('饥饿采集数据太短，请增加采集时间！')
-            hungry = -1
+            hungry_code = -1
         else:
             hungry = hungry_model.test(ppg)
+            process_hungry_result(hungry)
 
-    hungry_res = create_trial_bean(0, "未开启测试")
+    hungry_res = create_trial_bean(hungry_code, "未开启测试")
 
     # 调用恐惧模型
     fear = 0
@@ -45,3 +46,12 @@ def model_trial(df, config):
 
     result = {"hungry": hungry_res, "fear": fear_res, "tired": tired_res, "comprehensive": com_res}
     return result
+
+
+def process_hungry_result(hungry):
+    """0: 不饿，1：饥饿"""
+    return np.sum(hungry) > (len(hungry) // 2)
+
+
+def process_fear_result(fear):
+    return np.sum(fear) > 0

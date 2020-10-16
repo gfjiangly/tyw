@@ -15,7 +15,7 @@ from tyw.configs.config import merge_cfg_from_file, cfg
 class HungryLoader(DataProcessor):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(cfg.DATA)
         self.column_num = cfg.TRAIN.HUNGRY_MODEL.COLUMN_NUM
         self.class_num = cfg.TRAIN.HUNGRY_MODEL.CLASS_NUM
         self.look_back = cfg.TRAIN.HUNGRY_MODEL.LOOK_BACK
