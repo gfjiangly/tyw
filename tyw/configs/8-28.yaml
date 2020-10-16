@@ -41,3 +41,7 @@ TEST:
     PATH: 'E:/体域网项目/codes/tyw/tyw/model_file/200-30-20-0.869565_cont.h5'
   FEAR_MODEL:
     OPEN: True
+  TIRED_MODEL:
+    OPEN: False
+  COM_MODEL:
+    OPEN: False

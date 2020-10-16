@@ -7,8 +7,6 @@ from tyw.model.FearModel import FearModel
 from tyw.configs.config import merge_cfg_from_file, cfg
 from tyw.deploy.ResultBean import *
 
-cfg_file = '../configs/8-28.yaml'
-merge_cfg_from_file(cfg_file)
 hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)

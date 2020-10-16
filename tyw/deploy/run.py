@@ -9,6 +9,7 @@ import os.path as osp
 import time
 import pickle
 
+from tyw.configs.config import merge_cfg_from_file, cfg
 from tyw.deploy import ResultBean
 from tyw.deploy.constant import *
 from tyw.deploy.setting import *
@@ -21,6 +22,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 ALLOWED_EXTENSIONS = {'txt', 'pkl', 'csv'}
 
+cfg_file = '../configs/8-28.yaml'
+merge_cfg_from_file(cfg_file)
 model = None
 
 log_save_root = "../../log/"

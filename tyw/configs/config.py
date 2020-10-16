@@ -113,6 +113,10 @@ __C.TEST.HUNGRY_MODEL.OPEN = False
 __C.TEST.HUNGRY_MODEL.PATH = '../model_file/200-30-20-0.869565_cont.h5'
 __C.TEST.FEAR_MODEL = AttrDict()
 __C.TEST.FEAR_MODEL.OPEN = False
+__C.TEST.TIRED_MODEL = AttrDict()
+__C.TEST.TIRED_MODEL.OPEN = False
+__C.TEST.COM_MODEL = AttrDict()
+__C.TEST.COM_MODEL.OPEN = False
 
 
 # ---------------------------------------------------------------------------- #
