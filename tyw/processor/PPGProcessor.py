@@ -35,7 +35,18 @@ class PPGProcessor:
         self.feat_name = ['index', 'ppg_h', 'ppg_l', 'ppg_t']
 
     def extract_ppg_t(self, file):
+        """废弃"""
+        return self.extract_ppg_t_from_file(file)
+
+    def extract_ppg_t_from_file(self, file):
         ppg_feats = self.extract_feats(file)
+        ppg_feats = ppg_feats['ppg_t'].to_frame()
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        feats = scaler.fit_transform(ppg_feats.values)
+        return feats
+
+    def extract_ppg_t_from_ppg(self, ppg):
+        ppg_feats = self.extract_feats_from_ppg(ppg)
         ppg_feats = ppg_feats['ppg_t'].to_frame()
         scaler = MinMaxScaler(feature_range=(0, 1))
         feats = scaler.fit_transform(ppg_feats.values)
@@ -64,7 +75,11 @@ class PPGProcessor:
         return feats
 
     def extract_feats_from_ppg(self, ppg):
-        return self._extract_feats(ppg)
+        feats = self._extract_feats(ppg)
+        if cfg.DRAW.PPG:
+            filename = cvtools.get_time_str()
+            self.draw(filename, feats)
+        return feats
 
     def _extract_feats(self, data):
         if cfg.PPG.ORIGIN_DISCARD > 0:

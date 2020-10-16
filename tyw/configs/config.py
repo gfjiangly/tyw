@@ -53,7 +53,7 @@ __C.PPG.INTERVAL_UP_THRESHOLD = 3000
 # EDA options
 # ---------------------------------------------------------------------------- #
 __C.EDA = AttrDict()
-__C.EDA.DOWN_SAMPLE = 100
+__C.EDA.DOWN_SAMPLE = 100  # 下采样倍数，例如100，表示每100个点取1个点
 __C.EDA.LOOK_BACK = 100
 
 __C.EDA.H_TH = 0.

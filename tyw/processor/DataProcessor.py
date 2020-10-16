@@ -45,10 +45,12 @@ class DataProcessor:
             'CH13': 'EDA'
         }
         self.dataset = []
+        self.files_info = []
         # 创建了文件名对应清洗后的文件路径的缓存索引
         self._cache = Cache(cfg.CACHE.CLEAR)
         print('Loading Dataset...')
         if cfg.PROCESSOR.USE_CLEAR:
+            # TODO：这里有问题，待修复
             self.dataset = mmcv.load(cfg.DATA)
         else:
             file_list = cvtools.get_files_list(
@@ -57,38 +59,34 @@ class DataProcessor:
                 file_info = self.parsing_ann(
                     osp.join(cfg.PROCESSOR.ANN_SRC,
                              osp.basename(file)))
-                self.split_channels(file, file_info)
-                self.dataset.append(file_info)
+                self.clear_csv_file(file, file_info)
+                self.files_info.append(file_info)
+        self.dataset = self.files_info
 
-    def split_channels(self, file, file_info):
+    def clear_csv_file(self, file, file_info):
         """从原始数据中加载有用的通道，并保存成pkl格式"""
         file_id = file_info['id']
         if self._cache.get(file_id) is None:
             try:
-                with open(file, 'r') as fp:
-                    raw_data = fp.readlines()
-                # file_info['original_name'] = raw_data[0].strip()
-                data = pd.DataFrame(    # 10分钟150W, 4s1W
-                    [item.split() for item in raw_data[46:]],
-                    columns=[item.strip() for item in raw_data[45].split()])
-                # self.channel_map[data.columns.tolist()[0]] = 'time'
-                data = data[self.channel_map.keys()][1:].astype(float)
-                # 使用data.columns = []修改不了
-                data.rename(columns=self.channel_map, inplace=True)
-                # save clear data
+                data = self.load_data_from_csv(file)
+                # 将清洗后的数据保存成pkl文件
                 filename = osp.join(cfg.CLEAR_SRC, file_id + '.pkl')
                 cvtools.makedirs(filename)
                 mmcv.dump(data, filename)
+                # 更新干净数据的缓存
                 self._cache.put(file_id, filename)
             except Exception as e:
                 print(file, e)
         file_info['filename'] = self._cache.get(file_id)
         return file_info
 
+    def get_file_id(self, filename):
+        return osp.splitext(osp.basename(filename))[0]
+
     def parsing_ann(self, filename):
         """解析文件名，生成样本的元信息"""
         file_info = dict()
-        file_id = osp.splitext(osp.basename(filename))[0]
+        file_id = self.get_file_id(filename)
         file_info['id'] = file_id
         file_split = file_id.split('_')
         file_info['who'] = file_split[0]
@@ -118,6 +116,32 @@ class DataProcessor:
             file_info['bad'][signal_ann[0].strip()] = \
                 [qun.strip() for qun in signal_ann[1:]]
         return file_info
+
+    def load_data(self, file):
+        """从原始文件中加载数据"""
+        file_path = self._cache.get(self.get_file_id(file))
+        if file_path is None:
+            return self.load_data_from_csv(file)
+        else:
+            return self.load_data_from_pkl(file_path)
+
+    def load_data_from_csv(self, file):
+        """从原始数据中加载有用的通道，并保存成pkl格式"""
+        with open(file, 'r') as fp:
+            raw_data = fp.readlines()
+        # file_info['original_name'] = raw_data[0].strip()
+        data = pd.DataFrame(    # 10分钟150W, 4s1W
+            [item.split() for item in raw_data[46:]],
+            columns=[item.strip() for item in raw_data[45].split()])
+        # self.channel_map[data.columns.tolist()[0]] = 'time'
+        data = data[self.channel_map.keys()][1:].astype(float)
+        # 使用data.columns = []修改不了
+        data.rename(columns=self.channel_map, inplace=True)
+        return data
+
+    def load_data_from_pkl(self, file):
+        """从pkl文件加载数据"""
+        return mmcv.load(file)
 
     def save(self, filename='data_info.json'):
         mmcv.dump(self.dataset, filename)

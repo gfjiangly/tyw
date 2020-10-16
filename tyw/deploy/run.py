@@ -80,7 +80,7 @@ def upload_image():
             fear_loader = FearLoader()
             eda_feats = fear_loader.process_test_data(df['EDA'])
             fear = fear_model.test(eda_feats)
-        result = {"hungry": hungry, "fear": fear, "cc": 3}
+        result = {"hungry": 1, "fear": 1, "cc": 3}
 
         # 持久化数据
         dao.setResult(filename, result_attr, result)
