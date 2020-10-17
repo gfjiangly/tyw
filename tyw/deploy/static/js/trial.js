@@ -10,15 +10,19 @@ $('#file-upload').fileinput({
     showPreview: false
 });
 
+// 根据配置信息设置复选框
 $(document).ready(function(){
 
     config = JSON.parse(config)
     // 设置测试配置
     TARGET_ITEM.forEach(function(item) {
         //console.log(config[item])
+        domId = item + '-check';
         if(config[item] === true) {
-            domId = item + '-check';
             $('#' + domId).attr("checked", 'true');
+        } else {
+            $('#' + domId).attr("disabled", 'disabled');
+            $('#' + domId).parent().css("color", "#ccc")
         }
     })
 })
