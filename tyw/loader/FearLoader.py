@@ -8,17 +8,18 @@ from tyw.processor.EDAProcessor import EDAProcess
 
 class FearLoader(DataProcessor):
 
-    def __init__(self):
-        super().__init__(cfg.DATA)
+    def __init__(self, data_path=None):
+        super().__init__(data_path)
         self.files = []
         self.labels = []
-        for file_info in self.files_info:
-            if 'fear' in file_info:
-                label = file_info['fear']
-                self.labels.append(label)
-                # 筛选含EDA信号文件
-                if 'EDA' in file_info['signals']:
-                    self.files.append(file_info['filename'])
+        if data_path:
+            for file_info in self.files_info:
+                if 'fear' in file_info:
+                    label = file_info['fear']
+                    self.labels.append(label)
+                    # 筛选含EDA信号文件
+                    if 'EDA' in file_info['signals']:
+                        self.files.append(file_info['filename'])
 
     def process_train_data(self, filter_func=None):
         assert len(self.files) == len(self.labels)

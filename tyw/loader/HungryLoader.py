@@ -14,21 +14,22 @@ from tyw.configs.config import merge_cfg_from_file, cfg
 
 class HungryLoader(DataProcessor):
 
-    def __init__(self):
-        super().__init__(cfg.DATA)
+    def __init__(self, data_path=None):
+        super().__init__(data_path)
         self.column_num = cfg.TRAIN.HUNGRY_MODEL.COLUMN_NUM
         self.class_num = cfg.TRAIN.HUNGRY_MODEL.CLASS_NUM
         self.look_back = cfg.TRAIN.HUNGRY_MODEL.LOOK_BACK
         # self.look_back = 4
         self.dataX = []
         self.dataY = []
-        for data in self.dataset:
-            if 'hungry' in data:
-                label = data['hungry']
-                self.dataY.append(label)
-                # 筛选含PPG信号文件
-                if 'PPG' in data['signals']:
-                    self.dataX.append(data['filename'])
+        if data_path:
+            for data in self.dataset:
+                if 'hungry' in data:
+                    label = data['hungry']
+                    self.dataY.append(label)
+                    # 筛选含PPG信号文件
+                    if 'PPG' in data['signals']:
+                        self.dataX.append(data['filename'])
         self.ppg_processor = PPGProcessor(cache=cfg.CACHE.PPG)
 
     def get_train_data(self, filter_func=None):

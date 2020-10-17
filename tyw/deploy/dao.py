@@ -8,7 +8,6 @@ import time
 import os
 import os.path as osp
 
-
 RESULT_KEY_PREFIX = 'result:'
 FILES_ENCODE_KEY = 'files:name.encode'
 FILES_MD5_KEY = 'files:md5'
@@ -22,7 +21,6 @@ GLOBAL_LOCK_PREFIX = 'global:'
 VALID_CHARS = "/0123456789abcdefg"
 
 pool = redis.ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
-
 
 # 获取连接
 def getConn():
@@ -85,7 +83,6 @@ def getFidByMd5(md5):
 
 # 删除全部记录，包括文件
 def deleteRecordAll(fid):
-
     result_key = RESULT_KEY_PREFIX + str(fid)
     lock_name = GLOBAL_LOCK_PREFIX + str(fid)
 
@@ -142,7 +139,8 @@ def setFileAttr(filename, md5):
     pipeline.hmset(RESULT_KEY_PREFIX + str(file_id), {'id': file_id,
                                                       'md5': md5,
                                                       "filename": filename,
-                                                      "upload_time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(upload_timestamp))})
+                                                      "upload_time": time.strftime("%Y-%m-%d %H:%M:%S",
+                                                                                   time.localtime(upload_timestamp))})
     pipeline.execute()
     return file_id
 
@@ -207,7 +205,6 @@ def getGraphData(fid):
 
 # 获取全部结果
 def getAllResult():
-
     # 这是之前用 set 存储文件名时，使用 sort 来获取结果的方法。
     # conn = getConn()
     # arr = conn.sort(FILES_NAME_KEY,
@@ -340,3 +337,4 @@ def deleteFile(md5):
         return False
     os.remove(file_path)
     return True
+

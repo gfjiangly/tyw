@@ -1,0 +1,16 @@
+# cvtoolss==0.0.6a1
+numpy==1.16.4
+tensorboard==1.13.1
+tensorflow==1.13.2
+Keras==2.2.5
+sklearn==0.0
+matplotlib==3.1.1
+mmcv==0.2.15
+opencv-python==4.1.0.25
+pandas==1.1.2
+PyYAML==5.1.2
+scikit-learn==0.21.2
+# Shapely==1.6.4.post2
+tsfresh==0.17.0
+redis==3.5.3
+Flask==1.1.1

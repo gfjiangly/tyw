@@ -16,7 +16,7 @@ def model_trial(df):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
     hungry_code = 0  # 0-未开启测试
-    hungry = None
+    hungry = -1
     if cfg.TEST.HUNGRY_MODEL.OPEN:
         hungry_loader = HungryLoader()
         ppg = hungry_loader.process_test_data(df['PPG'])
@@ -24,14 +24,14 @@ def model_trial(df):
             print('饥饿采集数据太短，请增加采集时间！')
             hungry_code = -1
         else:
-            hungry = hungry_model.test(ppg)
-            hungry = process_hungry_result(hungry)
             hungry_code = 1
+            hungry = hungry_model.test(ppg)
+            hungry = int(process_hungry_result(hungry))
     hungry_res = create_trial_bean(hungry_code, state=hungry)
 
     # 调用恐惧模型
     fear_code = 0
-    fear = None
+    fear = -1
     if cfg.TEST.FEAR_MODEL.OPEN:
         fear_loader = FearLoader()
         eda_feats = fear_loader.process_test_data(df['EDA'])
@@ -39,8 +39,9 @@ def model_trial(df):
             print('恐惧采集数据太短，请增加采集时间！')
             fear_code = -1
         else:
+            fear_code = 1
             fear = fear_model.test(eda_feats)
-            fear = process_fear_result(fear)
+            fear = int(process_fear_result(fear))
     fear_res = create_trial_bean(fear_code, state=fear)
 
     # 调用恐惧模型

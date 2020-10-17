@@ -8,7 +8,10 @@ import os
 import os.path as osp
 import time
 import pickle
+import yaml
 import json
+import sys
+sys.path.append('../../')
 
 from tyw.configs.config import merge_cfg_from_file, cfg
 from tyw.processor.DataProcessor import DataProcessor
@@ -17,6 +20,8 @@ from tyw.deploy.constant import *
 from tyw.deploy.setting import *
 from tyw.deploy import dao
 from tyw.deploy.ModelTrial import *
+from tyw.utils.collections import AttrDict
+
 
 app = flask.Flask(__name__)
 UPLOAD_FOLDER = 'upload'
@@ -27,6 +32,9 @@ ALLOWED_EXTENSIONS = {'txt', 'pkl', 'csv'}
 cfg_file = '../configs/8-28.yaml'
 merge_cfg_from_file(cfg_file)
 model = None
+
+init_config = AttrDict()
+
 
 log_save_root = "../../log/"
 logger = cvtools.get_logger('INFO', name='deploy_tyw_model')
@@ -159,10 +167,9 @@ def overview_entry():
 # 测试模块入口
 @app.route('/trial', methods=['GET'])
 def trial_entry():
-    test = cfg['TEST']
     arr = []
     for item in CONFIG_ITEM:
-        arr.append(test[item]['OPEN'])
+        arr.append(init_config[item]['OPEN'])
 
     config = json.dumps(dict(zip(TARGET_ITEM, arr)))
     return flask.render_template("trial.html", config=config)
@@ -268,5 +275,12 @@ def save_config(config):
         cfg['TEST'][item]['OPEN'] = dic[item]
 
 
+# 读 yaml
+def read_yaml(cfg_filename):
+    with open(cfg_filename, 'r', encoding='UTF-8') as f:
+       return AttrDict(yaml.load(f, Loader=yaml.FullLoader))['TEST']
+
+
 if __name__ == '__main__':
+    init_config = read_yaml(cfg_file)
     app.run(host='0.0.0.0', port=5000)
