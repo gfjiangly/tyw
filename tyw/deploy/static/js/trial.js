@@ -122,7 +122,6 @@ $('#upload-btn').click(function(){
                             }
                         })
 
-                        show_result(data.data)
                     } else {
                         fail_prompt("上传失败")
                     }
@@ -138,7 +137,7 @@ $('#upload-btn').click(function(){
 });
 
 function show_result(data) {
-    success_prompt("上传成功")
+    success_prompt("测试成功")
     var resDom = '';
     Object.keys(data).forEach(function(key){
          if(key !== 'fid') {
@@ -191,7 +190,7 @@ function upload_file(file, md5, filename, callback){
     form.append("data", file);
     form.append("md5", md5);
     form.append("filename", filename)
-    form.append("config", get_checkbox_value())
+//    form.append("config", get_checkbox_value())
 
     $('.trial-result').html('<h4>检测中...</h4>');
     // info_prompt("正在上传");
@@ -219,6 +218,7 @@ function get_trial_result(md5, callback) {
     form.append("fid", '');
     form.append("md5", md5);
     form.append("config", get_checkbox_value())
+    form.append("save_config", true)
 
     $.ajax({
         url: retrialUrl,

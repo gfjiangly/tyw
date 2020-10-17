@@ -2,8 +2,12 @@ from tyw.deploy.setting import *
 from tyw.deploy.RedisUtils import *
 from tyw.deploy.ResultBean import *
 from tyw.deploy.constant import *
+from tyw.deploy.run import log_save_root, app
 import uuid
 import time
+import os
+import os.path as osp
+
 
 RESULT_KEY_PREFIX = 'result:'
 FILES_ENCODE_KEY = 'files:name.encode'
@@ -79,7 +83,7 @@ def getFidByMd5(md5):
     return getConn().get('md5:' + md5)
 
 
-# 删除全部记录，但是文件本身没有删除
+# 删除全部记录，包括文件
 def deleteRecordAll(fid):
 
     result_key = RESULT_KEY_PREFIX + str(fid)
@@ -110,6 +114,8 @@ def deleteRecordAll(fid):
         pipeline.zrem(FILES_LIST_KEY, fid)
         pipeline.delete(result_key)
         res_arr = pipeline.execute()
+
+        deleteFile(md5)
 
         return create_success_bean("删除成功")
 
@@ -324,3 +330,13 @@ def decoding(s):
         if subst.strip() != '':
             result += chr(int(subst, 16))
     return result
+
+
+# 删除文件
+def deleteFile(md5):
+    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
+    file_path = file_dir + '/' + md5 + '.pkl'
+    if not osp.exists(file_dir):
+        return False
+    os.remove(file_path)
+    return True

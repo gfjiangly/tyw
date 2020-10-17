@@ -44,6 +44,7 @@ def upload_test():
 # 上传 md5 和文件名
 @app.route('/up_md5', methods=['GET'])
 def upload_file_attr():
+
     if session.get('md5') is not None:
         session.pop('md5')
 
@@ -81,26 +82,17 @@ def upload_image():
     filename = flask.request.form['filename']
     md5 = flask.request.form['md5']
     f = flask.request.files['data']
-    config = flask.request.form['config']
-
-    # 保存 config
-    save_config(config)
 
     if f:
         data = parse_file(f, filename)
         # 持久化文件属性
         fid = dao.setFileAttr(filename, md5)
-        item = do_trial(data, fid, config)
 
         if session.get('md5') is not None:
             session.pop('md5')
 
         # 保存文件
         cvtools.dump_pkl(data, osp.join(file_dir, md5 + '.pkl'))
-        # return flask.jsonify(item)
-
-        # file_path = file_dir + '/' + md5 + '.pkl'
-        # item = do_trial(fid, file_path)
 
         return flask.jsonify(ResultBean.create_success_bean("ok"))
     else:
@@ -120,9 +112,7 @@ def do_trial_file():
     fid = flask.request.form['fid']
     md5 = flask.request.form['md5']
     config = flask.request.form['config']
-
-    # 保存 config
-    save_config(config)
+    is_save = flask.request.form['save_config']
 
     filename = ""
 
@@ -132,11 +122,30 @@ def do_trial_file():
     elif fid is not None and fid != '':
         # 重测时通过fid定位文件
         filename = dao.getMd5ById(fid)
+
+    # 持久化结果需要用到 fid
+    if fid is None or fid == '':
+        fid = dao.getFidByMd5(md5)
+
+    # fid 为 None 说明没能通过 md5 获取得到 fid。即存在 MD5 但是 不存在 fid
+    # 出现这种情况的原因是：用户点击上传后又马上刷新页面或者关闭浏览器，这有可能造成上传了 MD5 但是还没上传文件
+    # 所以这里做预防措施
+    if fid is None:
+        dao.deleteMd5(md5)
+        return flask.jsonify(create_fail_bean("请重新上传文件"))
+
+    tmp_config = cfg['TEST']
+    save_config(config)
+
     if filename == "":
         return flask.jsonify(ResultBean.create_fail_bean("文件不存在"))
 
-    file_path = osp.join(file_dir, filename + '.pkl')
-    item = do_trial(fid, config, file_path)
+    file_path = file_dir + '/' + filename + '.pkl'
+    item = do_trial(fid, file_path)
+
+    # 如果此次测试不保存配置信息，则恢复
+    if not is_save:
+        cfg['TEST'] = tmp_config
 
     return flask.jsonify(item)
 
@@ -228,7 +237,11 @@ def handle_500_error(err_msg):
         session.pop('md5')
 
 
-def do_trial(df, fid):
+def do_trial(fid, file_path):
+
+    f = open(file_path, mode='rb')
+
+    df = pickle.load(f)
 
     # 算法调用处
     res = model_trial(df)

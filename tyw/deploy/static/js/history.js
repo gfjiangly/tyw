@@ -150,6 +150,7 @@ function get_retrial_result(fid, callback) {
     form.append("fid", fid);
     form.append("md5", '');
     form.append("config", JSON.stringify(dic))
+    form.append("save_config", false)
 
     $.ajax({
         url: retrialUrl,

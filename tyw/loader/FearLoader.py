@@ -9,7 +9,7 @@ from tyw.processor.EDAProcessor import EDAProcess
 class FearLoader(DataProcessor):
 
     def __init__(self):
-        super().__init__(cfg.PATH)
+        super().__init__(cfg.DATA)
         self.files = []
         self.labels = []
         for file_info in self.files_info:

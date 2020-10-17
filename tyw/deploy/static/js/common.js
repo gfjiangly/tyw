@@ -210,7 +210,12 @@ var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试�
 
 var set_target_state_text = function(dom, target_title, code, state) {
 
-    if(!code || typeof(code) === "undefined" || code === 'null' || code === '') {
+    state = parseInt(state);
+
+    code = parseInt(code)
+    //console.log(code)
+
+    if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
         code = '-401'
     }
 
@@ -236,9 +241,11 @@ var set_target_state_text = function(dom, target_title, code, state) {
 
 // 获取某项指标对应的文字
 var get_target_state_text_html = function(target_title, code, state) {
+
     state = parseInt(state);
+
     code = parseInt(code)
-    console.log(code)
+    //console.log(code)
     text = target_result_mapping[target_title][state]
     color = ''
 
