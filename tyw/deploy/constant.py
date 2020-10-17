@@ -12,4 +12,7 @@ TABLE_ITEM = ['id', 'filename', 'upload_time', 'hungry', 'fear', 'tired', 'compr
 ALL_RESULT_ITEM = ['id', 'filename', 'upload_time', 'hungry', 'hungry.code', 'fear', 'fear.code', 'tired', 'tired.code', 'comprehensive', 'comprehensive.code']
 TARGET_ITEM = ['hungry', 'fear', 'tired', 'comprehensive']
 
+# 配置项目
+CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'COM_MODEL']
+
 

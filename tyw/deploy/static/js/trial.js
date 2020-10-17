@@ -10,6 +10,19 @@ $('#file-upload').fileinput({
     showPreview: false
 });
 
+$(document).ready(function(){
+
+    config = JSON.parse(config)
+    // 设置测试配置
+    TARGET_ITEM.forEach(function(item) {
+        //console.log(config[item])
+        if(config[item] === true) {
+            domId = item + '-check';
+            $('#' + domId).attr("checked", 'true');
+        }
+    })
+})
+
 
 
 // 计算文件的 md5
@@ -70,6 +83,8 @@ $('#upload-btn').click(function(){
 
             } else if(msg === file_existed_msg) {
 
+                hide_loading();
+                trail_loading();
                 // 文件已存在
                 // 直接测试
                 get_trial_result(md5, function(data) {
@@ -90,8 +105,23 @@ $('#upload-btn').click(function(){
 
                     hide_loading();
 
-                    // 上传结果处理
+                    // 上传成功
                     if(data.code === 1) {
+                        success_prompt("上传成功")
+
+                        trail_loading()
+
+                        get_trial_result(md5, function(data) {
+
+                            hide_loading();
+
+                            if(data.code === success_code) {
+                                show_result(data.data)
+                            } else {
+                                fail_prompt(data.msg)
+                            }
+                        })
+
                         show_result(data.data)
                     } else {
                         fail_prompt("上传失败")
@@ -208,16 +238,18 @@ function get_trial_result(md5, callback) {
 
 // 复选框
 function get_checkbox_value(){
-    //定义一个空数组
-    arr = []
+    dic = {}
     var obj=document.getElementsByName('check');
     for(var i = 0; i < obj.length; i++) {
+
         if(obj[i].checked) {
-            arr.push(obj[i].value)
+            dic[CONFIG_ITEM[i]] = true
+        } else {
+            dic[CONFIG_ITEM[i]] = false
         }
     }
-    console.log(arr)
-    return arr
+    console.log(dic)
+    return JSON.stringify(dic)
 }
 
 // 全选
@@ -229,6 +261,8 @@ function set_checkbox_all() {
 function set_checkbox_none() {
     $('[name="check"]').removeAttr('checked')
 }
+
+
 
 // 开关按钮
 //$('[name="status"]').bootstrapSwitch({    //初始化按钮

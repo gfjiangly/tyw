@@ -8,6 +8,7 @@ import os
 import os.path as osp
 import time
 import pickle
+import json
 
 from tyw.configs.config import merge_cfg_from_file, cfg
 from tyw.processor.DataProcessor import DataProcessor
@@ -43,9 +44,15 @@ def upload_test():
 # 上传 md5 和文件名
 @app.route('/up_md5', methods=['GET'])
 def upload_file_attr():
+    if session.get('md5') is not None:
+        session.pop('md5')
+
     md5 = flask.request.args['md5']
     item = dao.isMd5Existed(md5)
-    session['md5'] = md5
+
+    if item['code'] == 1:
+        session['md5'] = md5
+
     return flask.jsonify(item)
 
 
@@ -76,14 +83,26 @@ def upload_image():
     f = flask.request.files['data']
     config = flask.request.form['config']
 
+    # 保存 config
+    save_config(config)
+
     if f:
         data = parse_file(f, filename)
         # 持久化文件属性
         fid = dao.setFileAttr(filename, md5)
         item = do_trial(data, fid, config)
+
+        if session.get('md5') is not None:
+            session.pop('md5')
+
         # 保存文件
         cvtools.dump_pkl(data, osp.join(file_dir, md5 + '.pkl'))
-        return flask.jsonify(item)
+        # return flask.jsonify(item)
+
+        # file_path = file_dir + '/' + md5 + '.pkl'
+        # item = do_trial(fid, file_path)
+
+        return flask.jsonify(ResultBean.create_success_bean("ok"))
     else:
         # 把 files:md5 中的记录删除
         dao.deleteMd5(md5)
@@ -102,7 +121,11 @@ def do_trial_file():
     md5 = flask.request.form['md5']
     config = flask.request.form['config']
 
+    # 保存 config
+    save_config(config)
+
     filename = ""
+
     if md5 is not None and md5 != '':
         # 上传时通过md5定位文件
         filename = md5
@@ -127,7 +150,13 @@ def overview_entry():
 # 测试模块入口
 @app.route('/trial', methods=['GET'])
 def trial_entry():
-    return flask.render_template("trial.html")
+    test = cfg['TEST']
+    arr = []
+    for item in CONFIG_ITEM:
+        arr.append(test[item]['OPEN'])
+
+    config = json.dumps(dict(zip(TARGET_ITEM, arr)))
+    return flask.render_template("trial.html", config=config)
 
 
 # 历史模块入口
@@ -187,11 +216,22 @@ def handle_400_error(err_msg):
     print('file uploaded aborted. file md5 is ' + md5)
     if md5 is not None:
         dao.deleteMd5(md5)
+        session.pop('md5')
 
 
-def do_trial(df, fid, config):
+@app.errorhandler(500)
+def handle_500_error(err_msg):
+    md5 = session.get('md5')
+    print('file uploaded aborted. file md5 is ' + md5)
+    if md5 is not None:
+        dao.deleteMd5(md5)
+        session.pop('md5')
+
+
+def do_trial(df, fid):
+
     # 算法调用处
-    res = model_trial(df, config)
+    res = model_trial(df)
     ###################
 
     # 持久化测试结果
@@ -206,6 +246,13 @@ def do_trial(df, fid, config):
 
     item = ResultBean.create_success_data_bean(res)
     return item
+
+
+# 保存 config
+def save_config(config):
+    dic = json.loads(config)
+    for item in CONFIG_ITEM:
+        cfg['TEST'][item]['OPEN'] = dic[item]
 
 
 if __name__ == '__main__':

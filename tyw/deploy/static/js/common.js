@@ -56,6 +56,9 @@ var no_lock_msg = "nolock";
 // 指标
 var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'comprehensive'];
 
+var CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'COM_MODEL']
+
+
 // 指标状态
 var HUNGRY_STATE = 1;
 var NOT_HUNGRY_STATE = 0;
@@ -175,7 +178,7 @@ var hide_loading = function() {
  * @param text 文字
  * @param type 类型 【default, info, success, warning, fail】
  */
-var type_color_mapping = {'default': '#ccc', 'info': '#0099FF', 'success': '#228B22', 'warning': '#FFFF00', 'fail': '#FF0000'}
+var type_color_mapping = {'default': '#ccc', 'info': '#0099FF', 'success': '#228B22', 'warning': '#F7C709', 'fail': '#FF0000'}
 var text_rendering = function(dom, text, type) {
     dom.text(text).css('color', type_color_mapping[type])
 }
@@ -203,9 +206,14 @@ var fail_text = function(dom, text) {
 // 根据指标状态设置文本
 var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态'}
 var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不健康', '健康']}
-var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够'}
+var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够', '-401': '上传未测试' }
 
 var set_target_state_text = function(dom, target_title, code, state) {
+
+    if(!code || typeof(code) === "undefined" || code === 'null' || code === '') {
+        code = '-401'
+    }
+
     code = code.toString()
     if(code === '1') {
         text = target_result_mapping[target_title][state]
@@ -217,8 +225,10 @@ var set_target_state_text = function(dom, target_title, code, state) {
         } else if(state === 1) {
             fail_text(dom, text)
         }
-    } else {
+    } else if(code === '0') {
         info_text(dom, code_status_mapping[code])
+    } else {
+        warning_text(dom, code_status_mapping[code])
     }
 
 
@@ -226,10 +236,16 @@ var set_target_state_text = function(dom, target_title, code, state) {
 
 // 获取某项指标对应的文字
 var get_target_state_text_html = function(target_title, code, state) {
-    //console.log(code)
     state = parseInt(state);
+    code = parseInt(code)
+    console.log(code)
     text = target_result_mapping[target_title][state]
     color = ''
+
+    if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
+        code = '-401'
+    }
+
     code = code.toString()
     if(code === '1') {
         if(state === NO_STATE) {
@@ -240,8 +256,11 @@ var get_target_state_text_html = function(target_title, code, state) {
         } else if(state === 1) {
             color = type_color_mapping['fail']
         }
-    } else {
+    } else if(code === '0') {
         color = type_color_mapping['info']
+        text = code_status_mapping[code]
+    } else {
+        color = type_color_mapping['warning']
         text = code_status_mapping[code]
     }
 
@@ -249,5 +268,3 @@ var get_target_state_text_html = function(target_title, code, state) {
     resDom = '<span style="color:' + color + '">' + text + '</span>';
     return resDom;
 }
-
-

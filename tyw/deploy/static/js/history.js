@@ -139,10 +139,17 @@ $('body').on('click', '.delete-btn', function() {
 // 重新测试
 function get_retrial_result(fid, callback) {
 
+    dic = {}
+    for(var i = 0; i < CONFIG_ITEM.length; i++) {
+        dic[CONFIG_ITEM[i]] = true
+    }
+
+    console.log(dic)
+
     var form = new FormData();
     form.append("fid", fid);
     form.append("md5", '');
-    form.append("config", TARGET_ITEM)
+    form.append("config", JSON.stringify(dic))
 
     $.ajax({
         url: retrialUrl,

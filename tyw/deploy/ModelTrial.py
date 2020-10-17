@@ -12,7 +12,7 @@ hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
 
 
-def model_trial(df, config):
+def model_trial(df):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
     hungry_code = 0  # 0-未开启测试

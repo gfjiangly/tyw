@@ -89,10 +89,10 @@
                         <span style="padding-bottom: 15px; font-size: 18px;" class="header">测试配置</span>
                     </div>
                     <div>
-                        <label>饥饿 <input style="margin-right: 10px;" id="hungry-check" name="check" type="checkbox" value="hungry" checked></label>
-                        <label>恐惧 <input style="margin-right: 10px;" id="fear-check" name="check" type="checkbox" value="fear" checked></label>
-                        <label>疲劳 <input style="margin-right: 10px;" name="check" type="checkbox" value="tired" checked></label>
-                        <label>综合  <input style="margin-right: 10px;" name="check" type="checkbox" value="comprehensive" checked></label>
+                        <label>饥饿 <input style="margin-right: 10px;" id="hungry-check" name="check" type="checkbox" value="hungry"></label>
+                        <label>恐惧 <input style="margin-right: 10px;" id="fear-check" name="check" type="checkbox" value="fear"></label>
+                        <label>疲劳 <input style="margin-right: 10px;" id="tired-check" name="check" type="checkbox" value="tired"></label>
+                        <label>综合  <input style="margin-right: 10px;" id="comprehensive-check" name="check" type="checkbox" value="comprehensive"></label>
                     </div>
                 </div>
 
@@ -127,6 +127,10 @@
         </div>
       </div>
     </div>
+
+    <script>
+        var config = {{ config|tojson }}
+    </script>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
