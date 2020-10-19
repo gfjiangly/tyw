@@ -196,7 +196,7 @@ function upload_file(file, md5, filename, callback){
     form.append("filename", filename)
 //    form.append("config", get_checkbox_value())
 
-    // $('.trial-result').html('<h4>检测中...</h4>');
+//    $('.trial-result').html('<h4>检测中...</h4>');
     // info_prompt("正在上传");
 
     $.ajax({

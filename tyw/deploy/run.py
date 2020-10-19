@@ -3,6 +3,7 @@
 # @Author  : jiang.g.f
 import flask
 from flask import session
+from flask_cors import CORS
 import cvtools
 import os
 import os.path as osp
@@ -28,6 +29,9 @@ UPLOAD_FOLDER = 'upload'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 ALLOWED_EXTENSIONS = {'txt', 'pkl', 'csv'}
+
+# 配置跨域
+CORS(app, resource={r'/*'}, supports_credentials=True)
 
 cfg_file = '../configs/8-28.yaml'
 merge_cfg_from_file(cfg_file)
