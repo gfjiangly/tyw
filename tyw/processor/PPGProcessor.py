@@ -9,6 +9,7 @@ import pandas as pd
 import os.path as osp
 import mmcv
 import cvtools
+from joblib import Parallel, delayed
 from sklearn.preprocessing import MinMaxScaler
 
 from tyw.configs.config import cfg
@@ -80,6 +81,16 @@ class PPGProcessor:
             filename = cvtools.get_time_str()
             self.draw(filename, feats)
         return feats
+
+    def extract_feats_from_ppg_parallel(self, ppg, n_jobs=4, size=50000):
+        shards = len(ppg) // size
+        if shards > 0:
+            results = Parallel(n_jobs=n_jobs)(
+                delayed(self._extract_feats)(ppg[i*size:(i+1)*size])
+                for i in range(shards))
+            return pd.concat(results)
+        else:
+            return self.extract_feats_from_ppg(ppg)
 
     def _extract_feats(self, data):
         if cfg.PPG.ORIGIN_DISCARD > 0:

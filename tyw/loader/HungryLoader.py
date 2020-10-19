@@ -71,7 +71,7 @@ class HungryLoader(DataProcessor):
         return np.array(X), Y
 
     def process_test_data(self, ppg):
-        feats = self.ppg_processor.extract_feats_from_ppg(ppg)
+        feats = self.ppg_processor.extract_feats_from_ppg_parallel(ppg)
         feats = feats['ppg_t']
         feats = feats.values
         overlap = 0.8

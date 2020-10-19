@@ -45,7 +45,9 @@ class FearModel:
         return value
 
     def test(self, example):
-        return self.predict(example)
+        preds = self.predict(example)
+        print('for fear test: {}'.format(preds))
+        return preds
 
 
 if __name__ == '__main__':
