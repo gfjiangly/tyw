@@ -3,7 +3,6 @@
 # @Author  : jiang.g.f
 import flask
 from flask import session
-from flask_cors import CORS
 import cvtools
 import os
 import os.path as osp
@@ -30,15 +29,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = SESSION_SECRET_KEY
 ALLOWED_EXTENSIONS = {'txt', 'pkl', 'csv'}
 
-# 配置跨域
-CORS(app, resource={r'/*'}, supports_credentials=True)
-
 cfg_file = '../configs/8-28.yaml'
 merge_cfg_from_file(cfg_file)
 model = None
 
 init_config = AttrDict()
-
 
 log_save_root = "../../log/"
 logger = cvtools.get_logger('INFO', name='deploy_tyw_model')
@@ -282,7 +277,7 @@ def save_config(config):
 # 读 yaml
 def read_yaml(cfg_filename):
     with open(cfg_filename, 'r', encoding='UTF-8') as f:
-       return AttrDict(yaml.load(f, Loader=yaml.FullLoader))['TEST']
+        return AttrDict(yaml.load(f, Loader=yaml.FullLoader))['TEST']
 
 
 if __name__ == '__main__':
