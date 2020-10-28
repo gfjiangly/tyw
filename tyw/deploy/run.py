@@ -53,18 +53,24 @@ def upload_test():
 def upload_person_info():
     username = flask.request.form['username']
     age = flask.request.form['age']
+    max_beats = int(flask.request.form['max_beats'])
+    min_beats = int(flask.request.form['min_beats'])
 
     # 设置 Session
     setUser(username)
 
     # 计算最小心率
-    min_beats = 0
+    if min_beats == -1:
+        # 此处调用算法计算最小心率
+        min_beats = 0
     ###########
 
-    max_beats = 220 - int(age)
+    # 计算最大心率
+    if max_beats == -1:
+        max_beats = 220 - int(age)
 
     # 持久化
-    dao.setPersonInfo(username, age, min_beats, max_beats)
+    dao.setPersonInfo(username, age,min_beats, max_beats)
 
     result = {"min": min_beats, "max": max_beats}
 
