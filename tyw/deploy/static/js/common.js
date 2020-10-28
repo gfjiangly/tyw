@@ -41,7 +41,10 @@ var retrialUrl = "do_trial";
 var deleteAllUrl = 'delete/all';
 
 // 上传测试者信息
-var uploadPersonInfoUrl = 'person/upload';
+var uploadPersonInfoUrl = 'person/upload/info';
+
+// 上传心率文件
+var uploadHeartBeatFileUrl = 'person/upload/file'
 
 // 获取测试者信息
 var getPersonInfoUrl = "person/info";
@@ -70,9 +73,9 @@ var no_user_msg = "nouser";
 var user_no_found_msg = "nofound";
 
 // 指标
-var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'comprehensive', 'health'];
+var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'health', 'comprehensive'];
 
-var CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'COM_MODEL', 'HEALTH_MODEL']
+var CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'HEALTH_MODEL', 'FITNESS_MODEL']
 
 
 // 指标状态
@@ -290,4 +293,24 @@ var get_target_state_text_html = function(target_title, code, state) {
 
     resDom = '<span style="color:' + color + '">' + text + '</span>';
     return resDom;
+}
+
+
+// 文件上传框
+// 产生文件上传的控件
+function create_fileinput(domId, title) {
+    $(domId).fileinput({
+        language: 'zh', //设置语言
+        browseLabel: title,
+        allowedFileExtensions: ['txt', 'csv', 'pkl', 'xlsx', '.xls'],//接收的文件后缀
+        showUpload: false, //是否显示上传按钮
+        showCaption: true,//是否显示标题
+        browseClass: "btn btn-primary", //按钮样式
+        enctype: 'multipart/form-data',
+        validateInitialCount:true,
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+        showPreview: false
+    });
+
 }

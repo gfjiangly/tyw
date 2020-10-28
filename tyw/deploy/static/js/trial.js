@@ -1,27 +1,5 @@
 create_fileinput('#file-upload', '选择测试文件');
 
-
-// 产生文件上传的控件
-function create_fileinput(domId, title) {
-    $(domId).fileinput({
-        language: 'zh', //设置语言
-        browseLabel: title,
-        allowedFileExtensions: ['txt', 'csv', 'pkl', 'xlsx', '.xls'],//接收的文件后缀
-        showUpload: false, //是否显示上传按钮
-        showCaption: true,//是否显示标题
-        browseClass: "btn btn-primary", //按钮样式
-        enctype: 'multipart/form-data',
-        validateInitialCount:true,
-        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
-        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
-        showPreview: false
-    });
-
-}
-
-
-
-
 // 根据配置信息设置复选框
 $(document).ready(function(){
 
@@ -55,7 +33,7 @@ $(document).ready(function(){
 // 综合复选框是否选中
 function compreClick() {
 
-    var checked = document.getElementsByName('check')[3].checked;
+    var checked = document.getElementsByName('check')[4].checked;
 
     if(checked) {
         dom = '<input id="file2-upload" name="data" class="file" type="file" data-theme="fas">'

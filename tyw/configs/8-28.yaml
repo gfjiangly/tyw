@@ -52,4 +52,4 @@ TEST:
   HEALTH_MODEL:
     OPEN: False
   FITNESS_MODEL:
-    OPEN: False
+    OPEN: True

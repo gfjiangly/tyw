@@ -1,4 +1,7 @@
+//create_fileinput('#heart-file-upload', '选择测试文件');
+
 $(document).ready(function(){
+
     get_info(function(data) {
         $('#name').val(data.data['username'])
         $('#age').val(data.data['age'])
@@ -6,8 +9,26 @@ $(document).ready(function(){
         $('#max-hbeat').val(data.data['max_beats'])
     })
 
+    minBeatsClick();
+    maxBeatsClick();
+
 })
 
+function minBeatsClick() {
+    if(is_min_checked()) {
+        $('#min-hbeat').removeAttr("disabled")
+    } else {
+        $('#min-hbeat').attr('disabled', 'true')
+    }
+}
+
+function maxBeatsClick() {
+    if(is_max_checked()) {
+        $('#max-hbeat').removeAttr("disabled")
+    } else {
+        $('#max-hbeat').attr('disabled', 'true')
+    }
+}
 
 
 
@@ -48,10 +69,27 @@ $('#person-config-btn').click(function() {
 
     mLoading_mask("配置中...");
     upload_info(username, age, min_beats, max_beats, function(data) {
-        mLoading_hide();
-        $('#min-hbeat').val(data.data['min'])
-        $('#max-hbeat').val(data.data['max'])
-        success_prompt("配置成功！")
+
+        // 判断是否要上传文件
+        beat_file = $('#heart-file-upload')[0].files[0];
+
+        if(typeof(beat_file) === 'undefined' || beat_file === null) {
+            mLoading_hide();
+            $('#min-hbeat').val(data.data['min'])
+            $('#max-hbeat').val(data.data['max'])
+            success_prompt("配置成功！")
+            return
+        }
+
+        // 上传文件
+        upload_hbeat_file(beat_file, username, function(data2) {
+            console.log(data2)
+            mLoading_hide();
+            $('#min-hbeat').val(data2.data['min'])
+            $('#max-hbeat').val(data.data['max'])
+            success_prompt("配置成功！")
+        })
+
     })
 });
 
@@ -90,6 +128,28 @@ function get_info(callback) {
         },
         error: function () {
             alert("获取失败！");
+        }
+    })
+}
+
+// 上传文件
+function upload_hbeat_file(file, username,  callback) {
+    var form = new FormData();
+    form.append("data", file)
+    form.append("username", username)
+
+    $.ajax({
+        url: uploadHeartBeatFileUrl,
+        type: "post",
+        data: form,
+        processData : false,
+        contentType : false,
+        success : function(data){
+            callback(data)
+        },
+        error: function () {
+            hide_loading();
+            alert("上传文件失败！");
         }
     })
 }

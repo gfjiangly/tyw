@@ -365,5 +365,7 @@ def setBodyFileAttr(username, filename):
     getConn().hset(PERSON_INFO_KEY_PREFIX + username, "body_filename", filename)
 
 
-
+# 设置最小心率
+def setMinBeats(username, min_beats):
+    getConn().hset(PERSON_INFO_KEY_PREFIX + username, "min_beats", min_beats)
 
