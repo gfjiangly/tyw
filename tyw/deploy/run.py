@@ -344,7 +344,8 @@ def do_trial(fid, file_path):
     df = pickle.load(f)
 
     # 算法调用处
-    res = model_trial(df)
+    person_info = dao.getPersonInfo(getUser())
+    res = model_trial(df, person_info)
     ###################
 
     # 持久化测试结果

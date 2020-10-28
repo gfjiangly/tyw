@@ -25,22 +25,7 @@ class FitnessLoader(DataProcessor):
         feats = self.ppg_processor.extract_feats_from_ppg_parallel(ppg)
         feats = feats['ppg_t']
         feats = feats.values
-        overlap = 0.8
-        X = []
-        if 0 < len(feats) < self.look_back:
-            X.append(feats)
-        else:
-            for i in range(0, len(feats) - self.look_back,
-                           int(self.look_back * overlap)):
-                a = feats[i:(i + self.look_back)]
-                X.append(a)
-        if len(X) > 0:
-            a = np.zeros(self.look_back)
-            a[:len(X[-1])] = X[-1]
-            X[-1] = a
-        X = np.array(X)
-        X = X[..., np.newaxis]
-        return X
+        return feats
 
 
 if __name__ == '__main__':

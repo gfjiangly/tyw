@@ -12,10 +12,9 @@ from tyw.deploy.ResultBean import *
 hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
-fitness_model = FitnessModel(None)
 
 
-def model_trial(df):
+def model_trial(df, person_info):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
     hungry_code = 0  # 0-未开启测试
@@ -51,6 +50,7 @@ def model_trial(df):
     tired_res = create_trial_bean(0, "未开启测试")
 
     # 调用综合体能模型
+    fitness_model = FitnessModel(person_info)
     fitness_code = 0
     fitness = -1
     if cfg.TEST.FITNESS_MODEL.OPEN:
