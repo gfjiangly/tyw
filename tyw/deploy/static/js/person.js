@@ -1,4 +1,5 @@
 $(document).ready(function(){
+
     get_info(function(data) {
         $('#name').val(data.data['username'])
         $('#age').val(data.data['age'])

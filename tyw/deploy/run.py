@@ -70,7 +70,7 @@ def upload_person_info():
         max_beats = 220 - int(age)
 
     # 持久化
-    dao.setPersonInfo(username, age,min_beats, max_beats)
+    dao.setPersonInfo(username, age, min_beats, max_beats)
 
     result = {"min": min_beats, "max": max_beats}
 
