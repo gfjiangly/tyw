@@ -155,11 +155,18 @@ $('#upload-btn').click(function(){
 function show_result(data) {
     success_prompt("测试成功")
     var resDom = '';
-    Object.keys(data).forEach(function(key){
-         if(key !== 'fid') {
-            resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
-         }
-    });
+
+    target_count = TARGET_ITEM.length
+    for(var i = 0; i < target_count; i++) {
+        key = TARGET_ITEM[i]
+        resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
+    }
+
+    //Object.keys(data).forEach(function(key){
+    //     if(key !== 'fid') {
+    //       resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
+    //     }
+    //});
 
     // 查看图像的按钮不要了
     //resDom = resDom + '<button type="button" style="margin-left: 50px; margin-top: 5px" class="view-btn btn-xs btn-default" id="view-' + data["fid"] +
@@ -355,7 +362,7 @@ function get_checkbox_value(){
 }
 
 function is_compre_checked() {
-    return document.getElementsByName('check')[3].checked;
+    return document.getElementsByName('check')[4].checked;
 }
 
 // 全选

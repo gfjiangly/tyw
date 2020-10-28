@@ -129,12 +129,20 @@ def upload_file_attr():
         session.pop('md5')
 
     md5 = flask.request.args['md5']
-    item = dao.isMd5Existed(md5)
+    is_md5_existed = dao.isMd5Existed(md5)
 
-    if item['code'] == 1:
+    # 只有当物理文件存在时才不需要重传
+    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
+    filename = file_dir + '/' + md5 + '.pkl'
+    is_file_existed = os.path.exists(filename)
+
+    if is_file_existed:
+        return flask.jsonify(create_bean(2, FILE_EXISTED_MSG, dao.getFidByMd5(md5)))
+
+    if not is_md5_existed:
         session['md5'] = md5
 
-    return flask.jsonify(item)
+    return flask.jsonify(create_success_bean("ok"))
 
 
 def parse_file(f, filename):

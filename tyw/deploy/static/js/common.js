@@ -197,7 +197,7 @@ var hide_loading = function() {
  * @param text 文字
  * @param type 类型 【default, info, success, warning, fail】
  */
-var type_color_mapping = {'default': '#ccc', 'info': '#0099FF', 'success': '#228B22', 'warning': '#F7C709', 'fail': '#FF0000'}
+var type_color_mapping = {'default': '#888', 'info': '#0099FF', 'success': '#228B22', 'warning': '#F7C709', 'fail': '#FF0000'}
 var text_rendering = function(dom, text, type) {
     dom.text(text).css('color', type_color_mapping[type])
 }
@@ -224,7 +224,7 @@ var fail_text = function(dom, text) {
 
 // 根据指标状态设置文本
 var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态', 'health': '健康状态'}
-var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不健康', '健康'], 'health': ['不健康', '健康']}
+var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不好', '好'], 'health': ['不健康', '健康']}
 var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够', '-401': '上传未测试' }
 
 var set_target_state_text = function(dom, target_title, code, state) {
@@ -241,13 +241,23 @@ var set_target_state_text = function(dom, target_title, code, state) {
     code = code.toString()
     if(code === '1') {
         text = target_result_mapping[target_title][state]
+        console.log(state)
 
         if(state === NO_STATE) {
             default_text(dom, '未知')
         } else if(state === 0) {
-            success_text(dom, text)
+            if(target_title === 'comprehensive' || target_title === 'health') {
+                fail_text(dom, text)
+            } else {
+                success_text(dom, text)
+            }
+
         } else if(state === 1) {
-            fail_text(dom, text)
+            if(target_title === 'comprehensive' || target_title === 'health') {
+                success_text(dom, text)
+            } else {
+                fail_text(dom, text)
+            }
         }
     } else if(code === '0') {
         info_text(dom, code_status_mapping[code])
@@ -257,6 +267,34 @@ var set_target_state_text = function(dom, target_title, code, state) {
 
 
 }
+
+// 设置综合指标
+var set_comprehensive_state_text = function(dom, code, state) {
+    state = parseInt(state);
+    code = parseInt(code)
+
+    if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
+        code = '-401'
+    }
+
+    code = code.toString()
+    if(code === '1') {
+
+        text = state
+
+        if(state === NO_STATE) {
+            default_text(dom, '未知')
+        } else {
+            default_text(dom, text)
+        }
+
+    } else if(code === '0') {
+        info_text(dom, code_status_mapping[code])
+    } else {
+        warning_text(dom, code_status_mapping[code])
+    }
+}
+
 
 // 获取某项指标对应的文字
 var get_target_state_text_html = function(target_title, code, state) {
@@ -278,10 +316,56 @@ var get_target_state_text_html = function(target_title, code, state) {
             text = '未知'
             color = type_color_mapping['default']
         } else if(state === 0) {
-            color = type_color_mapping['success']
+            if(target_title === 'comprehensive' || target_title === 'health') {
+                color = type_color_mapping['fail']
+            } else {
+                color = type_color_mapping['success']
+            }
+            //color = type_color_mapping['success']
         } else if(state === 1) {
-            color = type_color_mapping['fail']
+            if(target_title === 'comprehensive' || target_title === 'health') {
+                color = type_color_mapping['success']
+            } else {
+                color = type_color_mapping['fail']
+            }
+            //color = type_color_mapping['fail']
         }
+    } else if(code === '0') {
+        color = type_color_mapping['info']
+        text = code_status_mapping[code]
+    } else {
+        color = type_color_mapping['warning']
+        text = code_status_mapping[code]
+    }
+
+
+    resDom = '<span style="color:' + color + '">' + text + '</span>';
+    return resDom;
+}
+
+// 获取综合指标
+var get_comprehensive_state_text_html = function(code, state) {
+
+    state = parseInt(state);
+
+    code = parseInt(code)
+    //console.log(code)
+    text = state
+    color = ''
+
+    if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
+        code = '-401'
+    }
+
+    code = code.toString()
+    if(code === '1') {
+        if(state === NO_STATE) {
+            text = '未知'
+            color = type_color_mapping['default']
+        } else {
+            color = type_color_mapping['default']
+        }
+
     } else if(code === '0') {
         color = type_color_mapping['info']
         text = code_status_mapping[code]
