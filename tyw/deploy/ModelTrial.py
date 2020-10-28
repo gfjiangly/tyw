@@ -4,12 +4,15 @@ from tyw.loader.HungryLoader import HungryLoader
 from tyw.model.HungryModel import HungryModel
 from tyw.loader.FearLoader import FearLoader
 from tyw.model.FearModel import FearModel
+from tyw.loader.FitnessLoader import FitnessLoader
+from tyw.model.FitnessModel import FitnessModel
 from tyw.configs.config import merge_cfg_from_file, cfg
 from tyw.deploy.ResultBean import *
 
 hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
+fitness_model = FitnessModel(None)
 
 
 def model_trial(df):
@@ -47,8 +50,20 @@ def model_trial(df):
     # 调用恐惧模型
     tired_res = create_trial_bean(0, "未开启测试")
 
-    # 综合结果
-    com_res = create_trial_bean(0, "未开启测试")
+    # 调用综合体能模型
+    fitness_code = 0
+    fitness = -1
+    if cfg.TEST.FITNESS_MODEL.OPEN:
+        fitness_loader = FitnessLoader()
+        ppg_feats = fitness_loader.process_test_data(df['PPG'])
+        if len(ppg_feats) == 0:
+            print('心率数据采集太短，请增加采集时间！')
+            fitness_code = -1
+        else:
+            fitness_code = 1
+            fitness = fitness_model.test(ppg_feats)
+            fitness = int(process_fear_result(fitness))
+    com_res = create_trial_bean(fitness_code, state=fitness)
 
     result = {
         "hungry": hungry_res,

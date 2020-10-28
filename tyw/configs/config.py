@@ -133,6 +133,9 @@ __C.TEST.TIRED_MODEL = AttrDict()
 __C.TEST.TIRED_MODEL.OPEN = False
 __C.TEST.COM_MODEL = AttrDict()
 __C.TEST.COM_MODEL.OPEN = False
+__C.TEST.FITNESS_MODEL = AttrDict()
+__C.TEST.FITNESS_MODEL.OPEN = False
+__C.TEST.FITNESS_MODEL.MIN_HEART_RATE = 60.
 
 
 # ---------------------------------------------------------------------------- #
