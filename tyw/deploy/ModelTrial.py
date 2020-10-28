@@ -65,11 +65,15 @@ def model_trial(df):
             fitness = int(process_fear_result(fitness))
     com_res = create_trial_bean(fitness_code, state=fitness)
 
+    # 健康结果
+    health_res = create_trial_bean(0, "未开启测试")
+
     result = {
         "hungry": hungry_res,
         "fear": fear_res,
         "tired": tired_res,
-        "comprehensive": com_res
+        "comprehensive": com_res,
+        "health": health_res
     }
     return result
 

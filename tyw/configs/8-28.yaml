@@ -50,4 +50,4 @@ TEST:
   TIRED_MODEL:
     OPEN: False
   COM_MODEL:
-    OPEN: False
+    OPEN: True

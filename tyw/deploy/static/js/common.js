@@ -1,7 +1,8 @@
 //////////// url constant ////////////
 
 // 网站基址
-var basUrl = 'http://127.0.0.1:5000/';
+//var basUrl = 'http://127.0.0.1:5000/';
+var basUrl = '/';
 
 // 总览模块入口地址
 var overviewUrl = basUrl + 'overview';
@@ -17,6 +18,9 @@ var fileAttrUploadUrl = basUrl + 'up_md5';
 
 // 文件上传地址
 var fileUploadUrl = basUrl + 'up_data';
+
+// 体态文件上传地址
+var bodyFileUploadUrl = basUrl + "up_body";
 
 // 获取历史结果
 var historyAllResultUrl = basUrl + "history/result/all";
@@ -36,6 +40,12 @@ var retrialUrl = "do_trial";
 // 删除有关该文件的所有记录
 var deleteAllUrl = 'delete/all';
 
+// 上传测试者信息
+var uploadPersonInfoUrl = 'person/upload';
+
+// 获取测试者信息
+var getPersonInfoUrl = "person/info";
+
 
 
 //////////// result constant ////////////
@@ -53,10 +63,16 @@ var file_existed_msg = "existed";
 // 获取不到锁
 var no_lock_msg = "nolock";
 
-// 指标
-var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'comprehensive'];
+// 没有配置用户
+var no_user_msg = "nouser";
 
-var CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'COM_MODEL']
+// 用户未找到
+var user_no_found_msg = "nofound";
+
+// 指标
+var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'comprehensive', 'health'];
+
+var CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'COM_MODEL', 'HEALTH_MODEL']
 
 
 // 指标状态
@@ -204,8 +220,8 @@ var fail_text = function(dom, text) {
 }
 
 // 根据指标状态设置文本
-var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态'}
-var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不健康', '健康']}
+var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态', 'health': '健康状态'}
+var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不健康', '健康'], 'health': ['不健康', '健康']}
 var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够', '-401': '上传未测试' }
 
 var set_target_state_text = function(dom, target_title, code, state) {

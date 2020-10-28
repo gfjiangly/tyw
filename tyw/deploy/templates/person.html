@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>体域网测试平台</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/mloading/jquery.mloading.css">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+
+
+    <script>window.jQuery || document.write('<script src="/static/js/jquery.min.js"><\/script>')</script>
+    <script src="/static/bootstrap-dist/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+    <!--    导航栏    -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">体域网测试平台</a>
+        </div>
+      </div>
+    </nav>
+    <!---------------------------------------------------------------------------------->
+
+    <div class="container-fluid">
+      <div class="row">
+        <!--        左边栏         -->
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="/overview">总览</a></li>
+            <li class="active"><a>信息配置</a></li>
+            <li><a href="/trial">测试入口</a></li>
+            <li><a href="/history">历史结果</a></li>
+          </ul>
+        </div>
+
+        <!--        主体         -->
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <h1 class="page-header">测试者信息配置</h1>
+            <div class="col-sm-6">
+
+                <form>
+                    <div class="form-group">
+                        <label for="name">姓名:</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">年龄:</label>
+                        <input type="text" class="form-control" id="age" required>
+                    </div>
+
+                    <label>最小心率:</label>
+                    <div class="input-group" style="margin-bottom: 15px">
+                        <input type="text" class="form-control" id="min-hbeat">
+                        <span class="input-group-addon">
+                            <input id="min-hbeat-check" name="check" type="checkbox" value="min_beats_checked">
+                        </span>
+                    </div>
+
+                    <label>最大心率:</label>
+                    <div class="input-group" style="margin-bottom: 15px">
+                        <input type="text" class="form-control" id="max-hbeat">
+                        <span class="input-group-addon">
+                            <input id="max-hbeat-check" name="check" type="checkbox" value="max_beats_checked">
+                        </span>
+                    </div>
+<!--                    <div class="form-group">-->
+<!--                        <label for="min-hbeat">最小心率:</label>-->
+<!--                        <input type="text" class="form-control" id="min-hbeat">-->
+<!--                    </div>-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="max-hbeat">最大心率:</label>-->
+<!--                        <input type="text" class="form-control" id="max-hbeat">-->
+<!--                    </div>-->
+
+                    <button id="person-config-btn" type="button" class="btn btn-primary">点击配置</button>
+                </form>
+
+                    <div class="tip" style="margin-top: 30px">
+                        <div style="color: #888;">注1：手动输入心率数据请勾选，未勾选则由数据自动计算</div>
+                    </div>
+
+            </div>
+
+            <div class="col-sm-6">
+
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/mloading/jquery.mloading.js"></script>
+    <script src="/static/js/common.js"></script>
+    <script src="/static/js/person.js"></script>
+
+
+</body>
+</html>

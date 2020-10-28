@@ -1,17 +1,38 @@
-$('#file-upload').fileinput({
-    allowedFileExtensions: ['txt', 'csv', 'pkl'],//接收的文件后缀
-    showUpload: false, //是否显示上传按钮
-    showCaption: true,//是否显示标题
-    browseClass: "btn btn-primary", //按钮样式
-    enctype: 'multipart/form-data',
-    validateInitialCount:true,
-    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
-    msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
-    showPreview: false
-});
+create_fileinput('#file-upload', '选择测试文件');
+
+
+// 产生文件上传的控件
+function create_fileinput(domId, title) {
+    $(domId).fileinput({
+        language: 'zh', //设置语言
+        browseLabel: title,
+        allowedFileExtensions: ['txt', 'csv', 'pkl', 'xlsx', '.xls'],//接收的文件后缀
+        showUpload: false, //是否显示上传按钮
+        showCaption: true,//是否显示标题
+        browseClass: "btn btn-primary", //按钮样式
+        enctype: 'multipart/form-data',
+        validateInitialCount:true,
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+        showPreview: false
+    });
+
+}
+
+
+
 
 // 根据配置信息设置复选框
 $(document).ready(function(){
+
+    // 获取配置信息
+    get_info(function(data) {
+        if(data.code === success_code) {
+            $('#trial_person_text').val(data.data['username'])
+        } else {
+            $('#trial_person_text').val('无（请先配置）')
+        }
+    })
 
     config = JSON.parse(config)
     // 设置测试配置
@@ -25,8 +46,28 @@ $(document).ready(function(){
             $('#' + domId).parent().css("color", "#ccc")
         }
     })
+
+    compreClick();
 })
 
+
+
+// 综合复选框是否选中
+function compreClick() {
+
+    var checked = document.getElementsByName('check')[3].checked;
+
+    if(checked) {
+        dom = '<input id="file2-upload" name="data" class="file" type="file" data-theme="fas">'
+
+        $('#file2_upload_div')
+        $('#file2_upload_div').html(dom)
+        create_fileinput('#file2-upload', '选择体态文件')
+
+    } else {
+        $('#file2_upload_div').empty();
+    }
+}
 
 
 // 计算文件的 md5
@@ -69,6 +110,12 @@ $('#upload-btn').click(function(){
 
     // 首先求文件的 md5
     file = $('#file-upload')[0].files[0];
+
+    if(typeof(file) === 'undefined' || file === null) {
+        fail_prompt("测试文件不能为空")
+        return
+    }
+
     filename = $('#file-upload')[0].files[0]['name'];
 
     // 加载组件
@@ -76,10 +123,23 @@ $('#upload-btn').click(function(){
 
     calculate_md5(file, function(md5) {
 
+        username = $('#trial_person_text').val();
+        console.log(username)
+
         // 然后传送 md5
-        upload_file_attr(md5, function(data) {
+        upload_file_attr(md5, username, function(data) {
 
             msg = data.msg
+
+            if(msg == no_user_msg) {
+                hide_loading();
+                alert("请先配置测试者信息");
+                return;
+            } else if(msg === user_no_found_msg) {
+                hide_loading();
+                alert("测试者不存在，请先配置");
+                return;
+            }
 
             if(msg === no_lock_msg) {
                 hide_loading();
@@ -87,21 +147,7 @@ $('#upload-btn').click(function(){
 
             } else if(msg === file_existed_msg) {
 
-                hide_loading();
-                trail_loading();
-                // 文件已存在
-                // 直接测试
-                get_trial_result(md5, function(data) {
-
-                    console.log(data)
-                    hide_loading();
-
-                    if(data.code === success_code) {
-                        show_result(data.data)
-                    } else {
-                        fail_prompt(data.msg)
-                    }
-                })
+                wrap_upload(md5)
 
             } else {
                 // 上传文件
@@ -111,20 +157,8 @@ $('#upload-btn').click(function(){
 
                     // 上传成功
                     if(data.code === 1) {
-                        success_prompt("上传成功")
 
-                        trail_loading()
-
-                        get_trial_result(md5, function(data) {
-
-                            hide_loading();
-
-                            if(data.code === success_code) {
-                                show_result(data.data)
-                            } else {
-                                fail_prompt(data.msg)
-                            }
-                        })
+                        wrap_upload(md5)
 
                     } else {
                         fail_prompt("上传失败")
@@ -167,15 +201,16 @@ $('body').on('click', '.view-btn', function() {
 })
 
 
-// 上传 MD5
-function upload_file_attr(md5, callback) {
+// 上传 MD5 和 用户名
+function upload_file_attr(md5, username, callback) {
      console.log(md5)
 
     $.ajax({
         url: fileAttrUploadUrl,
         type: "get",
         data: {
-            "md5": md5
+            "md5": md5,
+            "username": username
         },
         success : function(data){
             callback(data)
@@ -215,6 +250,31 @@ function upload_file(file, md5, filename, callback){
     });
 }
 
+// 上传体态文件
+// file1_md5 用于与测试文件绑定
+function upload_body_file(file, filename, file1_md5, callback) {
+
+    var form = new FormData();
+    form.append("data", file);
+    //form.append("md5", file1_md5);
+    form.append("filename", filename);
+
+    $.ajax({
+        url: bodyFileUploadUrl,
+        type: "post",
+        data: form,
+        processData : false,
+        contentType : false,
+        success : function(data){
+            callback(data)
+        },
+        error: function () {
+            hide_loading();
+            alert("上传失败！");
+        }
+    });
+}
+
 // 根据存在的 md5 测试
 function get_trial_result(md5, callback) {
 
@@ -240,6 +300,66 @@ function get_trial_result(md5, callback) {
     })
 }
 
+// 包装函数
+function wrap_upload(md5) {
+    // 体态文件暂时不考虑md5
+    // 判断是否勾选了“综合”
+    if(is_compre_checked()) {
+
+        // 上传体态文件
+        // 1.判断是否有选择测试文件
+        // 这里不需要判断，因为如果没有选择测试文件，filename = $('#file-upload')[0].files[0]['name']; 就会报错
+
+        // 2.上传体态文件
+        body_file = $('#file2-upload')[0].files[0];
+
+        if(typeof(body_file) === 'undefined' || body_file === null) {
+            fail_prompt("体态文件不能为空")
+            hide_loading();
+            return
+        }
+
+        body_filename = $('#file2-upload')[0].files[0]['name'];
+        upload_body_file(body_file, body_filename, md5, function(data) {
+
+            console.log("上传体态文件");
+            hide_loading();
+            trail_loading();
+            get_trial_result(md5, function(data) {
+
+                //console.log(data)
+                hide_loading();
+
+                if(data.code === success_code) {
+                    show_result(data.data)
+                } else {
+                    fail_prompt(data.msg)
+                }
+            })
+        })
+
+    } else {
+
+        hide_loading();
+        trail_loading();
+        // 文件已存在
+        // 直接测试
+        get_trial_result(md5, function(data) {
+
+            console.log(data)
+            hide_loading();
+
+            if(data.code === success_code) {
+                show_result(data.data)
+            } else {
+                fail_prompt(data.msg)
+            }
+        })
+    }
+}
+
+
+
 // 复选框
 function get_checkbox_value(){
     dic = {}
@@ -254,6 +374,10 @@ function get_checkbox_value(){
     }
     console.log(dic)
     return JSON.stringify(dic)
+}
+
+function is_compre_checked() {
+    return document.getElementsByName('check')[3].checked;
 }
 
 // 全选
