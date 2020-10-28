@@ -49,7 +49,7 @@ def upload_test():
 
 
 # 上传配置信息
-@app.route('/person/upload', methods=['POST'])
+@app.route('/person/upload/info', methods=['POST'])
 def upload_person_info():
     username = flask.request.form['username']
     age = flask.request.form['age']
@@ -75,6 +75,26 @@ def upload_person_info():
     result = {"min": min_beats, "max": max_beats}
 
     return create_success_data_bean(result)
+
+
+# 上传心率文件
+@app.route('/person/upload/file', methods=['POST'])
+def upload_beat_file():
+    f = flask.request.files['data']
+    username = flask.request.form['username']
+
+    if f:
+        # 根据文件调用心率算法
+        min_beats = 10
+        ###########
+
+        dao.setMinBeats(username, min_beats)
+
+        result = {"min": min_beats}
+        return flask.jsonify(create_success_data_bean(result))
+    else:
+        item = ResultBean.create_fail_bean("文件上传失败")
+        return flask.jsonify(item)
 
 
 # 获取配置信息

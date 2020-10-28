@@ -41,7 +41,10 @@ var retrialUrl = "do_trial";
 var deleteAllUrl = 'delete/all';
 
 // 上传测试者信息
-var uploadPersonInfoUrl = 'person/upload';
+var uploadPersonInfoUrl = 'person/upload/info';
+
+// 上传心率文件
+var uploadHeartBeatFileUrl = 'person/upload/file'
 
 // 获取测试者信息
 var getPersonInfoUrl = "person/info";
