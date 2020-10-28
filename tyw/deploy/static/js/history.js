@@ -60,6 +60,7 @@ $('#search-input').on('input propertychange', function() {
 // 填充表格内容
 var fill_table = function(domId, data) {
     var resDom = '';
+    console.log(data)
 
     for(var i = 0; i < data.length; i++) {
         resDom = resDom + '<tr>';
@@ -68,8 +69,11 @@ var fill_table = function(domId, data) {
         resDom = resDom + '<td>' + get_target_state_text_html('hungry', data[i]["hungry.code"], data[i]["hungry"]) + '</td>';
         resDom = resDom + '<td>' + get_target_state_text_html('fear', data[i]["fear.code"], data[i]["fear"] ) + '</td>';
         resDom = resDom + '<td>' + get_target_state_text_html('tired', data[i]["tired.code"], data[i]["tired"]) + '</td>';
-        resDom = resDom + '<td>' + get_target_state_text_html('comprehensive', data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
         resDom = resDom + '<td>' + get_target_state_text_html('health', data[i]["health.code"], data[i]["health"]) + '</td>';
+
+        // 综合显示一个数字
+        resDom = resDom + '<td>' + get_comprehensive_state_text_html(data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
+        //resDom = resDom + '<td>' + get_target_state_text_html('comprehensive', data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
         //resDom = resDom + '<td><button type="button" class="graph-btn btn-xs btn-primary" id="graph-' + data[i]["id"] +
         //                  '">查看</button></td>';
         resDom = resDom + '<td><button type="button" class="retrial-btn btn-xs btn-success" id="retrial-' + data[i]["id"] +
@@ -102,9 +106,15 @@ $('body').on('click', '.retrial-btn', function() {
             // 设置新的 state
             target_count = TARGET_ITEM.length
             for(var i = target_count - 1; i >= 0; i--) {
-                set_target_state_text(tdDom, TARGET_ITEM[i], data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])
+                if(TARGET_ITEM[i] === 'comprehensive') {
+                    set_comprehensive_state_text(tdDom, data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])
+                } else {
+                    set_target_state_text(tdDom, TARGET_ITEM[i], data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])
+                }
+
                 tdDom = tdDom.prev()
             }
+
 
             success_prompt("测试成功")
         }

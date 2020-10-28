@@ -46,7 +46,7 @@ def model_trial(df, person_info):
             fear = int(process_fear_result(fear))
     fear_res = create_trial_bean(fear_code, state=fear)
 
-    # 调用恐惧模型
+    # 调用疲劳模型
     tired_res = create_trial_bean(0, "未开启测试")
 
     # 调用综合体能模型

@@ -6,7 +6,7 @@ fail_code = -1
 # 以下产生的 bean 是用于存放算法测试结果的
 # @param code 代码 【-1:数据长度不够 0:未开启测试 1:成功】
 # @param msg 消息
-# @param state 状态，如【0:饿  1:不饿 ; 0:不恐惧 1:恐惧 ; -1:未知】
+# @param state 状态，如【0:不饿  1:饿 ; 0:不恐惧 1:恐惧 ; -1:未知】
 # @param data 数据，即用于绘制图像的数组数据
 def create_trial_bean(code, msg='', state=-1, data=None):
     if data is None:

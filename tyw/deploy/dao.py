@@ -40,11 +40,13 @@ def isMd5Existed(md5):
     try:
         existed = conn.sismember(FILES_MD5_KEY, md5)
         if existed:
-            return create_bean(2, FILE_EXISTED_MSG, getFidByMd5(md5))  # md5 存在返回 fid
+            return True
+            # return create_bean(2, FILE_EXISTED_MSG, getFidByMd5(md5))  # md5 存在返回 fid
             # return create_fail_bean("existed")
 
         conn.sadd(FILES_MD5_KEY, md5)
-        return create_success_bean("ok")
+        # return create_success_bean("ok")
+        return False
 
     finally:
         release_lock(conn, MD5_LOCK, locked)
