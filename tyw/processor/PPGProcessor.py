@@ -92,6 +92,11 @@ class PPGProcessor:
         else:
             return self.extract_feats_from_ppg(ppg)
 
+    def extract_heart_rate_from_ppg(self, ppg, hz=2000):
+        feats = self._extract_feats(ppg)
+        heart_rate = 60. / (feats['ppg_t'] / hz)
+        return heart_rate
+
     def _extract_feats(self, data):
         if cfg.PPG.ORIGIN_DISCARD > 0:
             data = data[cfg.PPG.ORIGIN_DISCARD:-cfg.PPG.ORIGIN_DISCARD]
@@ -105,6 +110,7 @@ class PPGProcessor:
         interval = 0
         res = []
         for i in range(cfg.PPG.THRESHOLD, len(data) - cfg.PPG.THRESHOLD):
+            # 2kHZ采样频率，3000点=1.5s(40心率)，1000点=0.5s(120心率)
             if self._judge(data, i) and interval > 5 * cfg.PPG.THRESHOLD:
                 if count != 0:
                     if interval < cfg.PPG.INTERVAL_UP_THRESHOLD:

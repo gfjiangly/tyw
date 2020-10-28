@@ -49,7 +49,7 @@ TEST:
     OPEN: True
   TIRED_MODEL:
     OPEN: False
-  HELTH_MODEL:
+  HEALTH_MODEL:
     OPEN: False
   FITNESS_MODEL:
     OPEN: False

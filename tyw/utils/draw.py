@@ -86,3 +86,26 @@ def draw_dataframe_list(data_list,
     cvtools.makedirs(dst)
     plt.savefig(dst)
     plt.close()
+
+
+def draw_waveforms(data, label, dst, figsize=(20 * 4, 5), colour=None):
+    if colour is None:
+        colour = ('cornflowerblue', 'red', 'blue', 'green', 'orange', 'black')
+    fig = plt.figure(figsize=figsize)
+    # 画图区域分成1行1列。选择第一块区域。
+    ax1 = fig.add_subplot(1, 1, 1)
+    for i, item in enumerate(label):
+        if item[0] == 'scatter':
+            ax1.scatter(data.index, data[item[1]], color=colour[i])
+        if item[0] == 'plot':
+            ax1.plot(data.index, data[item[1]], color=colour[i])
+    cvtools.makedirs(dst)
+    plt.savefig(dst)
+    plt.close()
+
+
+if __name__ == '__main_':
+    data = None
+    label = (('plot', 'ECG'), ('scatter', 'Q'), ('scatter', 'R'),
+             ('scatter', 'S'), ('plot', 'PPG'), ('scatter', 'PPG_H'))
+    draw_waveforms(draw, label, 'pic/temp/test.png')
