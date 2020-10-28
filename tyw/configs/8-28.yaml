@@ -43,7 +43,7 @@ DRAW:
 
 TEST:
   HUNGRY_MODEL:
-    OPEN: False
+    OPEN: True
     PATH: 'E:/体域网项目/codes/tyw/tyw/model_file/200-30-20-0.869565_cont.h5'
   FEAR_MODEL:
     OPEN: True

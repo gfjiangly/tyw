@@ -49,31 +49,31 @@ def model_trial(df, person_info):
     # 调用恐惧模型
     tired_res = create_trial_bean(0, "未开启测试")
 
+    # 健康结果
+    health_res = create_trial_bean(0, "未开启测试")
+
     # 调用综合体能模型
     fitness_model = FitnessModel(person_info)
     fitness_code = 0
     fitness = -1
     if cfg.TEST.FITNESS_MODEL.OPEN:
         fitness_loader = FitnessLoader()
-        ppg_feats = fitness_loader.process_test_data(df['PPG'])
+        ppg_feats = fitness_loader.process_test_data(df['ECG'])
         if len(ppg_feats) == 0:
             print('心率数据采集太短，请增加采集时间！')
             fitness_code = -1
         else:
             fitness_code = 1
             fitness = fitness_model.test(ppg_feats)
-            fitness = int(process_fear_result(fitness))
-    com_res = create_trial_bean(fitness_code, state=fitness)
-
-    # 健康结果
-    health_res = create_trial_bean(0, "未开启测试")
+            fitness = int(process_fitness_result(fitness))
+    fitness_res = create_trial_bean(fitness_code, state=fitness)
 
     result = {
         "hungry": hungry_res,
         "fear": fear_res,
         "tired": tired_res,
-        "comprehensive": com_res,
-        "health": health_res
+        "health": health_res,
+        "comprehensive": fitness_res
     }
     return result
 
@@ -85,3 +85,7 @@ def process_hungry_result(hungry):
 
 def process_fear_result(fear):
     return np.sum(fear) > 0
+
+
+def process_fitness_result(fitness):
+    return np.mean(fitness)
