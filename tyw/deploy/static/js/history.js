@@ -69,6 +69,7 @@ var fill_table = function(domId, data) {
         resDom = resDom + '<td>' + get_target_state_text_html('fear', data[i]["fear.code"], data[i]["fear"] ) + '</td>';
         resDom = resDom + '<td>' + get_target_state_text_html('tired', data[i]["tired.code"], data[i]["tired"]) + '</td>';
         resDom = resDom + '<td>' + get_target_state_text_html('comprehensive', data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
+        resDom = resDom + '<td>' + get_target_state_text_html('health', data[i]["health.code"], data[i]["health"]) + '</td>';
         //resDom = resDom + '<td><button type="button" class="graph-btn btn-xs btn-primary" id="graph-' + data[i]["id"] +
         //                  '">查看</button></td>';
         resDom = resDom + '<td><button type="button" class="retrial-btn btn-xs btn-success" id="retrial-' + data[i]["id"] +

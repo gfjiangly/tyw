@@ -11,7 +11,6 @@ import pickle
 import yaml
 import json
 import sys
-sys.path.append('../../')
 
 from tyw.configs.config import merge_cfg_from_file, cfg
 from tyw.processor.DataProcessor import DataProcessor
@@ -22,6 +21,7 @@ from tyw.deploy import dao
 from tyw.deploy.ModelTrial import *
 from tyw.utils.collections import AttrDict
 
+sys.path.append('../../')
 
 app = flask.Flask(__name__)
 UPLOAD_FOLDER = 'upload'
@@ -48,9 +48,56 @@ def upload_test():
     return flask.redirect("/overview")
 
 
+# 上传配置信息
+@app.route('/person/upload', methods=['POST'])
+def upload_person_info():
+    username = flask.request.form['username']
+    age = flask.request.form['age']
+
+    # 设置 Session
+    setUser(username)
+
+    # 计算最小心率
+    min_beats = 0
+    ###########
+
+    max_beats = 220 - int(age)
+
+    # 持久化
+    dao.setPersonInfo(username, age, min_beats, max_beats)
+
+    result = {"min": min_beats, "max": max_beats}
+
+    return create_success_data_bean(result)
+
+
+# 获取配置信息
+@app.route('/person/info', methods=['GET'])
+def get_person_info():
+    username = getUser()
+    if username is None:
+        return flask.jsonify(create_fail_bean("未配置"))
+    res = dao.getPersonInfo(username)
+    return flask.jsonify(create_success_data_bean(res))
+
+
 # 上传 md5 和文件名
 @app.route('/up_md5', methods=['GET'])
 def upload_file_attr():
+
+    username = flask.request.args['username']
+
+    # 判断当前用户是否已配置
+    if getUser() is None or getUser() == '':
+        return flask.jsonify(create_fail_bean("nouser"))
+
+    # 获取用户信息
+    info = dao.getPersonInfo(username)
+    if info is None or info == {} or len(info) == 0:
+        return flask.jsonify(create_fail_bean("nofound"))
+
+    # 设置当前用户
+    setUser(username)
 
     if session.get('md5') is not None:
         session.pop('md5')
@@ -82,6 +129,7 @@ def parse_file(f, filename):
 # 上传数据处理接口
 @app.route('/up_data', methods=['POST'], strict_slashes=False)
 def upload_image():
+
     file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
     if not osp.exists(file_dir):
         os.makedirs(file_dir)
@@ -105,6 +153,41 @@ def upload_image():
     else:
         # 把 files:md5 中的记录删除
         dao.deleteMd5(md5)
+        item = ResultBean.create_fail_bean("文件上传失败")
+        return flask.jsonify(item)
+
+
+# 上传体态文件
+@app.route('/up_body', methods=['POST'], strict_slashes=False)
+def upload_body_file():
+
+    # 判断用户是否存在
+    # 其实在MD5验证那里就已经判断了，这里可以不用再判断的
+    username = getUser()
+    if username is None or username == '':
+        return flask.jsonify(create_fail_bean("请先配置测试者信息"))
+
+    file_dir = osp.join(log_save_root, app.config['UPLOAD_FOLDER'])
+    if not osp.exists(file_dir):
+        os.makedirs(file_dir)
+
+    filename = flask.request.form['filename']
+    f = flask.request.files['data']
+
+    if f:
+
+        # 保存文件
+        filename = username + '_' + filename
+        f.save(file_dir + '/' + filename)
+
+        # 持久化文件属性
+        dao.setBodyFileAttr(username, filename)
+
+        if session.get('md5') is not None:
+            session.pop('md5')
+
+        return flask.jsonify(ResultBean.create_success_bean("ok"))
+    else:
         item = ResultBean.create_fail_bean("文件上传失败")
         return flask.jsonify(item)
 
@@ -161,6 +244,12 @@ def do_trial_file():
 @app.route('/overview', methods=['GET'])
 def overview_entry():
     return flask.render_template("overview.html")
+
+
+# 个人信息模块入口
+@app.route('/person', methods=['GET'])
+def person_entry():
+    return flask.render_template("person.html")
 
 
 # 测试模块入口
@@ -244,7 +333,6 @@ def handle_500_error(err_msg):
 
 
 def do_trial(fid, file_path):
-
     f = open(file_path, mode='rb')
 
     df = pickle.load(f)
@@ -278,6 +366,16 @@ def save_config(config):
 def read_yaml(cfg_filename):
     with open(cfg_filename, 'r', encoding='UTF-8') as f:
         return AttrDict(yaml.load(f, Loader=yaml.FullLoader))['TEST']
+
+
+# 获取当前测试者
+def getUser():
+    return session.get(USERNAME_SESSION)
+
+
+# 设置当前测试者
+def setUser(username):
+    session[USERNAME_SESSION] = username
 
 
 if __name__ == '__main__':

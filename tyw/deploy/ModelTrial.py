@@ -50,11 +50,15 @@ def model_trial(df):
     # 综合结果
     com_res = create_trial_bean(0, "未开启测试")
 
+    # 健康结果
+    health_res = create_trial_bean(0, "未开启测试")
+
     result = {
         "hungry": hungry_res,
         "fear": fear_res,
         "tired": tired_res,
-        "comprehensive": com_res
+        "comprehensive": com_res,
+        "health": health_res
     }
     return result
 

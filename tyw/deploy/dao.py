@@ -14,6 +14,8 @@ FILES_MD5_KEY = 'files:md5'
 FILES_LIST_KEY = 'files:list'
 FILES_COUNT_KEY = 'files:count'
 GRAPH_KEY_PREFIX = 'graph:'
+PERSON_INFO_KEY_PREFIX = 'person.info:'
+PERSON_FILE_LIST_PREFIX = 'person.fid:'
 
 MD5_LOCK = 'md5'
 GLOBAL_LOCK_PREFIX = 'global:'
@@ -21,6 +23,7 @@ GLOBAL_LOCK_PREFIX = 'global:'
 VALID_CHARS = "/0123456789abcdefg"
 
 pool = redis.ConnectionPool(host=redis_host, port=redis_port, decode_responses=True)
+
 
 # 获取连接
 def getConn():
@@ -337,4 +340,30 @@ def deleteFile(md5):
         return False
     os.remove(file_path)
     return True
+
+
+# 获取配置信息
+def getPersonInfo(username):
+    return getConn().hgetall(PERSON_INFO_KEY_PREFIX + username)
+
+
+# 获取体态文件名
+def getBodyFileName(username):
+    return getConn().hget(PERSON_INFO_KEY_PREFIX + username, 'body_filename')
+
+
+# 配置信息
+def setPersonInfo(username, age, min_beats, max_beats):
+    getConn().hmset(PERSON_INFO_KEY_PREFIX + username, {'username': username,
+                                                        'age': age,
+                                                        'min_beats': min_beats,
+                                                        'max_beats': max_beats})
+
+
+# 设置体态文件名到配置信息
+def setBodyFileAttr(username, filename):
+    getConn().hset(PERSON_INFO_KEY_PREFIX + username, "body_filename", filename)
+
+
+
 

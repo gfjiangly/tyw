@@ -129,5 +129,6 @@ dmypy.json
 .git/
 *.csv
 *.pkl
+.gitignore
 /tyw/model_file/
-/configs
+/log/

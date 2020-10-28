@@ -11,8 +11,15 @@
     <!-- Bootstrap core CSS -->
     <link href="/static/bootstrap-dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="/static/mloading/jquery.mloading.css">
+
     <!-- Custom styles for this template -->
     <link href="/static/css/dashboard.css" rel="stylesheet">
+
+
+    <script>window.jQuery || document.write('<script src="/static/js/jquery.min.js"><\/script>')</script>
+    <script src="/static/bootstrap-dist/js/bootstrap.min.js"></script>
+
 </head>
 <body>
 
@@ -28,29 +35,17 @@
           </button>
           <a class="navbar-brand">体域网测试平台</a>
         </div>
-<!--        <div id="navbar" class="navbar-collapse collapse">-->
-<!--          <ul class="nav navbar-nav navbar-right">-->
-<!--            <li><a href="#">Dashboard</a></li>-->
-<!--            <li><a href="#">Settings</a></li>-->
-<!--            <li><a href="#">Profile</a></li>-->
-<!--            <li><a href="#">Help</a></li>-->
-<!--          </ul>-->
-<!--          <form class="navbar-form navbar-right">-->
-<!--            <input type="text" class="form-control" placeholder="Search...">-->
-<!--          </form>-->
-<!--        </div>-->
       </div>
     </nav>
     <!---------------------------------------------------------------------------------->
 
     <div class="container-fluid">
       <div class="row">
-
         <!--        左边栏         -->
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li class="active"><a>总览</a></li>
-            <li><a href="/person">信息配置</a></li>
+            <li><a href="/overview">总览</a></li>
+            <li class="active"><a>信息配置</a></li>
             <li><a href="/trial">测试入口</a></li>
             <li><a href="/history">历史结果</a></li>
           </ul>
@@ -58,22 +53,47 @@
 
         <!--        主体         -->
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Welcome！</h1>
+            <h1 class="page-header">测试者信息配置</h1>
+            <div class="col-sm-6">
 
+                <form>
+                    <div class="form-group">
+                        <label for="name">姓名:</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">年龄:</label>
+                        <input type="text" class="form-control" id="age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="min-hbeat">最小心率:</label>
+                        <input type="text" class="form-control" id="min-hbeat" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="max-hbeat">最大心率:</label>
+                        <input type="text" class="form-control" id="max-hbeat" readonly>
+                    </div>
+
+                    <button id="person-config-btn" type="button" class="btn btn-primary">点击配置</button>
+                </form>
+
+            </div>
+
+            <div class="col-sm-6">
+
+            </div>
         </div>
       </div>
     </div>
 
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script>window.jQuery || document.write('<script src="/static/js/jquery.min.js"><\/script>')</script>
-    <script src="/static/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script src="/static/mloading/jquery.mloading.js"></script>
     <script src="/static/js/common.js"></script>
+    <script src="/static/js/person.js"></script>
 
-    <script>
-        $("#overview").addClass("active");
-    </script>
 
 </body>
 </html>
