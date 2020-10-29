@@ -159,7 +159,12 @@ function show_result(data) {
     target_count = TARGET_ITEM.length
     for(var i = 0; i < target_count; i++) {
         key = TARGET_ITEM[i]
-        resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
+        if(key === 'comprehensive') {
+            resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_comprehensive_state_text_html(data[key]['code'], data[key]['state']) + '</h5>';
+        } else {
+            resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
+        }
+
     }
 
     //Object.keys(data).forEach(function(key){
@@ -169,6 +174,8 @@ function show_result(data) {
     //});
 
     // 查看图像的按钮不要了
+    //resDom = resDom + '<button type="button" style="margin-left: 50px; margin-top: 5px" class="view-btn btn-xs btn-default" id="view-' + data["fid"] +
+    //resDom = resDom + '<button type="button" style="margin-left: 50px; margin-top: 5px" class="view-btn btn-xs btn-default" id="view-' + data["fid"] +
     //resDom = resDom + '<button type="button" style="margin-left: 50px; margin-top: 5px" class="view-btn btn-xs btn-default" id="view-' + data["fid"] +
     //  '">查看图像</button>';
 

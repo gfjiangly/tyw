@@ -5,6 +5,9 @@ $(document).ready(function(){
     get_info(function(data) {
         $('#name').val(data.data['username'])
         $('#age').val(data.data['age'])
+        $('#temperature').val(data.data['temperature'])
+        $('#curr-heart-rate').val(data.data['curr_heart_rate'])
+        $('#blood-oxygen').val(data.data['blood_oxygen'])
         $('#min-hbeat').val(data.data['min_beats'])
         $('#max-hbeat').val(data.data['max_beats'])
     })
@@ -39,6 +42,9 @@ $('#person-config-btn').click(function() {
     var age = $('#age').val();
     var min_beats = $('#min-hbeat').val();
     var max_beats = $('#max-hbeat').val();
+    var temperature = $('#temperature').val();
+    var curr_heart_rate = $('#curr-heart-rate').val();
+    var blood_oxygen = $('#blood-oxygen').val()
 
     if(username === '' || typeof(username) === "undefined") {
         fail_prompt('请输入测试者姓名！')
@@ -49,6 +55,23 @@ $('#person-config-btn').click(function() {
     } else if(isNaN(age) || age <= 0 || age >= 200) {
         fail_prompt('年龄格式不正确！')
         return;
+    } else if(temperature === '' || typeof(temperature) === 'undefined') {
+        fail_prompt('请输入测试者体温！')
+        return
+    } else if(isNaN(temperature) || temperature <= 20 || temperature >= 42) {
+        fail_prompt("温度格式不正确！")
+        return
+    } else if(curr_heart_rate === '' || typeof(curr_heart_rate) === 'undefined') {
+        fail_prompt('请输入当前心率！')
+        return
+    } else if(isNaN(curr_heart_rate) || curr_heart_rate < 0 || curr_heart_rate >= 500) {
+        fail_prompt('心率格式不正确！')
+        return
+    } else if(blood_oxygen === '' || typeof(blood_oxygen) === 'undefined') {
+        fail_prompt('请输入血氧饱和度！')
+    } else if(isNaN(blood_oxygen) || blood_oxygen < 0) {
+        fail_prompt("血氧饱和度格式不正确！")
+        return
     }
 
     if(is_min_checked() && (min_beats == '' || isNaN(min_beats) || min_beats < 0 || min_beats >= 400)) {
@@ -68,7 +91,7 @@ $('#person-config-btn').click(function() {
     }
 
     mLoading_mask("配置中...");
-    upload_info(username, age, min_beats, max_beats, function(data) {
+    upload_info(username, age, temperature, curr_heart_rate, blood_oxygen, min_beats, max_beats, function(data) {
 
         // 判断是否要上传文件
         beat_file = $('#heart-file-upload')[0].files[0];
@@ -94,7 +117,7 @@ $('#person-config-btn').click(function() {
 });
 
 // 上传测试者信息
-function upload_info(username, age, min_beats, max_beats, callback) {
+function upload_info(username, age,  temperature, curr_heart_rate, blood_oxygen, min_beats, max_beats, callback) {
 
     $.ajax({
         url: uploadPersonInfoUrl,
@@ -102,6 +125,9 @@ function upload_info(username, age, min_beats, max_beats, callback) {
         data: {
             "username": username,
             "age": age,
+            "temperature": temperature,
+            "curr_heart_rate": curr_heart_rate,
+            "blood_oxygen": blood_oxygen,
             "min_beats": min_beats,
             "max_beats": max_beats
         },

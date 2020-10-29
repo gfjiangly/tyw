@@ -355,9 +355,12 @@ def getBodyFileName(username):
 
 
 # 配置信息
-def setPersonInfo(username, age, min_beats, max_beats):
+def setPersonInfo(username, age, temperature, curr_heart_rate, blood_oxygen, min_beats, max_beats):
     getConn().hmset(PERSON_INFO_KEY_PREFIX + username, {'username': username,
                                                         'age': age,
+                                                        'temperature': temperature,
+                                                        'curr_heart_rate': curr_heart_rate,
+                                                        'blood_oxygen': blood_oxygen,
                                                         'min_beats': min_beats,
                                                         'max_beats': max_beats})
 
