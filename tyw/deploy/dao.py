@@ -174,9 +174,12 @@ def setResult(fid, result):
         keys_mapping = {'trial_time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))}
 
         for title in titles:
+
+            # 判断是否有该向指标
             code_field = title + '.' + 'code'
             keys_mapping[title] = result[title]['state']
             keys_mapping[code_field] = str(result[title]['code'])
+
             # 设置 data
             # data_key = GRAPH_KEY_PREFIX + title + ':' + str(fid)
             # 本来打算用 list 来存放 data；现在将 [1,2,3] => '[1,2,3]'，存在 result:ID 里
@@ -390,3 +393,12 @@ def setBodyFileAttr(username, filename):
 def setMinBeats(username, min_beats):
     getConn().hset(PERSON_INFO_KEY_PREFIX + username, "min_beats", min_beats)
 
+
+# 设置健康状态
+def setHealthState(username, code, state):
+    getConn().hmset(PERSON_INFO_KEY_PREFIX + username, {"health.code": code, "health.state": state})
+
+
+# 获取健康状态
+def getHealthState(username):
+    return getConn().hmget(PERSON_INFO_KEY_PREFIX + username, ["health.code", "health.state"])

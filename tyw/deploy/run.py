@@ -419,6 +419,9 @@ def do_trial(fid, file_path):
     # 持久化测试结果
     flag = dao.setResult(fid, res)
 
+    # 持久化健康状态
+    dao.setHealthState(getUser(), res['health']['code'], res['health']['state'])
+
     # return_data = []
     # for target in TARGET_ITEM:
     #     return_data.append(res[target]['state'])
@@ -433,7 +436,10 @@ def do_trial(fid, file_path):
 
 
 def do_trial2(temperature, curr_heart_rate, blood_oxygen):
-    return health_trial(temperature, curr_heart_rate, blood_oxygen)
+    res = health_trial(temperature, curr_heart_rate, blood_oxygen)
+    dao.setHealthState(getUser(), res['health']['code'], res['health']['state'])
+    return res
+
 
 # 保存 config
 def save_config(config):
