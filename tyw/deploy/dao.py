@@ -161,7 +161,8 @@ def setResult(fid, result):
         return create_fail_bean(GET_LOCK_FAIL_MSG)
 
     # 指标名称
-    titles = TABLE_ITEM[3:]
+    # titles = TABLE_ITEM[3:]
+    titles = TARGET_ITEM
 
     try:
         pipeline = conn.pipeline(True)
@@ -190,12 +191,29 @@ def setResult(fid, result):
         release_lock(conn, lock_name, locked)
 
 
+# 设置健康配置
+def setHealthConfig(fid, temperature, curr_heart_rate, blood_oxygen):
+    key = RESULT_KEY_PREFIX + str(fid)
+    getConn().hmset(key, {'temperature': temperature,
+                          'curr_heart_rate': curr_heart_rate,
+                          'blood_oxygen': blood_oxygen})
+
+
+# 获取健康配置
+def getHealthConfig(fid):
+    key = RESULT_KEY_PREFIX + str(fid)
+    res = getConn().hmget(key, HEALTH_CONFIG_ITEM)
+    return dict(zip(HEALTH_CONFIG_ITEM, res))
+
+
 # 获取 graph 数据
 def getGraphData(fid):
     result_key = RESULT_KEY_PREFIX + str(fid)
 
     # 指标名称
-    titles = TABLE_ITEM[3:]
+    # titles = TABLE_ITEM[3:]
+    titles = TARGET_ITEM
+
     data_field = ['filename', 'trial_time']
     for title in titles:
         data_field.append(title + '.' + 'data')
@@ -355,12 +373,9 @@ def getBodyFileName(username):
 
 
 # 配置信息
-def setPersonInfo(username, age, temperature, curr_heart_rate, blood_oxygen, min_beats, max_beats):
+def setPersonInfo(username, age, min_beats, max_beats):
     getConn().hmset(PERSON_INFO_KEY_PREFIX + username, {'username': username,
                                                         'age': age,
-                                                        'temperature': temperature,
-                                                        'curr_heart_rate': curr_heart_rate,
-                                                        'blood_oxygen': blood_oxygen,
                                                         'min_beats': min_beats,
                                                         'max_beats': max_beats})
 

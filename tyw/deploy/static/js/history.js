@@ -74,6 +74,14 @@ var fill_table = function(domId, data) {
         // 综合显示一个数字
         resDom = resDom + '<td>' + get_comprehensive_state_text_html(data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
         //resDom = resDom + '<td>' + get_target_state_text_html('comprehensive', data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
+
+        // 体温、当前心率、血氧饱和度
+        resDom = resDom + '<td>' + '<span style="color:' + '#000000' + '">' + health_target_text(data[i]["temperature"]) + '</span>'+ '</td>';
+        resDom = resDom + '<td>' + '<span style="color:' + '#000000' + '">' + health_target_text(data[i]["curr_heart_rate"]) + '</span>'+ '</td>';
+        resDom = resDom + '<td>' + '<span style="color:' + '#000000' + '">' + health_target_text(data[i]["blood_oxygen"]) + '</span>'+ '</td>';
+
+
+
         //resDom = resDom + '<td><button type="button" class="graph-btn btn-xs btn-primary" id="graph-' + data[i]["id"] +
         //                  '">查看</button></td>';
         resDom = resDom + '<td><button type="button" class="retrial-btn btn-xs btn-success" id="retrial-' + data[i]["id"] +
@@ -83,6 +91,14 @@ var fill_table = function(domId, data) {
     }
     //console.log(resDom)
     $(domId).html(resDom);
+}
+
+//
+function health_target_text(text) {
+    if(text === null || text === "" || text === "-1") {
+        text = "暂无"
+    }
+    return text
 }
 
 
@@ -103,6 +119,15 @@ $('body').on('click', '.retrial-btn', function() {
         if(data.code == -1) {
             fail_prompt(data.msg)
         } else {
+
+            // 设置健康配置
+            target_count = HEALTH_CONFIG_ITEM.length
+            for(var i = target_count - 1; i >= 0; i--) {
+
+                black_text(tdDom, health_target_text(data.data[HEALTH_CONFIG_ITEM[i]]))
+                tdDom = tdDom.prev()
+            }
+
             // 设置新的 state
             target_count = TARGET_ITEM.length
             for(var i = target_count - 1; i >= 0; i--) {
@@ -155,13 +180,19 @@ function get_retrial_result(fid, callback) {
         dic[CONFIG_ITEM[i]] = true
     }
 
-    console.log(dic)
+    //console.log(dic)
 
     var form = new FormData();
     form.append("fid", fid);
     form.append("md5", '');
     form.append("config", JSON.stringify(dic))
     form.append("save_config", false)
+
+    // 处理体温、当前心率和血氧饱和度的上传
+    form.append("health_config", false)
+    form.append("temperature", "");
+    form.append("curr_heart_rate", "");
+    form.append("blood_oxygen", "");
 
     $.ajax({
         url: retrialUrl,

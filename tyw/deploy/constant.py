@@ -14,9 +14,12 @@ ALL_RESULT_ITEM = ['id', 'filename', 'upload_time',
                    'fear', 'fear.code',
                    'tired', 'tired.code',
                    'comprehensive', 'comprehensive.code',
-                   'health', 'health.code']
+                   'health', 'health.code',
+                   'temperature', 'curr_heart_rate', 'blood_oxygen']
 
 TARGET_ITEM = ['hungry', 'fear', 'tired', 'health', 'comprehensive']
+
+HEALTH_CONFIG_ITEM = ['temperature', 'curr_heart_rate', 'blood_oxygen']
 
 # 配置项目
 CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'HEALTH_MODEL', 'FITNESS_MODEL']

@@ -10,6 +10,10 @@ $(document).ready(function(){
         } else {
             $('#trial_person_text').val('无（请先配置）')
         }
+
+//        $('#temperature').val(data.data['temperature'])
+//        $('#curr-heart-rate').val(data.data['curr_heart_rate'])
+//        $('#blood-oxygen').val(data.data['blood_oxygen'])
     })
 
     config = JSON.parse(config)
@@ -26,6 +30,7 @@ $(document).ready(function(){
     })
 
     compreClick();
+    healthClick();
 })
 
 
@@ -33,17 +38,28 @@ $(document).ready(function(){
 // 综合复选框是否选中
 function compreClick() {
 
-    var checked = document.getElementsByName('check')[4].checked;
+    var checked = is_compre_checked()
 
     if(checked) {
         dom = '<input id="file2-upload" name="data" class="file" type="file" data-theme="fas">'
 
-        $('#file2_upload_div')
+        //$('#file2_upload_div')
         $('#file2_upload_div').html(dom)
         create_fileinput('#file2-upload', '选择体态文件')
 
     } else {
         $('#file2_upload_div').empty();
+    }
+}
+
+// 健康复选框是否选中
+function healthClick() {
+    var checked = is_health_checked();
+    if(checked) {
+
+        $('#form-div').show()
+    } else {
+        $('#form-div').hide()
     }
 }
 
@@ -86,7 +102,15 @@ function calculate_md5(file, callback) {
 // 点击上传按钮
 $('#upload-btn').click(function(){
 
-    // 首先求文件的 md5
+    // 首先验证输入
+    var temperature = $('#temperature').val();
+    var curr_heart_rate = $('#curr-heart-rate').val();
+    var blood_oxygen = $('#blood-oxygen').val()
+    if(is_health_checked() && !validate_temp_hrate_bloodox(temperature, curr_heart_rate, blood_oxygen)) {
+        return
+    }
+
+
     file = $('#file-upload')[0].files[0];
 
     if(typeof(file) === 'undefined' || file === null) {
@@ -99,6 +123,7 @@ $('#upload-btn').click(function(){
     // 加载组件
     upload_loading()
 
+    // 求文件的 md5
     calculate_md5(file, function(md5) {
 
         username = $('#trial_person_text').val();
@@ -125,7 +150,7 @@ $('#upload-btn').click(function(){
 
             } else if(msg === file_existed_msg) {
 
-                wrap_upload(md5)
+                wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen)
 
             } else {
                 // 上传文件
@@ -136,7 +161,7 @@ $('#upload-btn').click(function(){
                     // 上传成功
                     if(data.code === 1) {
 
-                        wrap_upload(md5)
+                        wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen)
 
                     } else {
                         fail_prompt("上传失败")
@@ -268,13 +293,20 @@ function upload_body_file(file, filename, file1_md5, callback) {
 }
 
 // 根据存在的 md5 测试
-function get_trial_result(md5, callback) {
+// 因为这里一定会上传，所以在这里处理体温、当前心率和血氧饱和度的上传
+function get_trial_result(md5, temperature, curr_heart_rate, blood_oxygen, callback) {
 
     var form = new FormData();
     form.append("fid", '');
     form.append("md5", md5);
     form.append("config", get_checkbox_value())
     form.append("save_config", true)
+
+    // 处理体温、当前心率和血氧饱和度的上传
+    form.append("health_config", is_health_checked())
+    form.append("temperature", temperature);
+    form.append("curr_heart_rate", curr_heart_rate);
+    form.append("blood_oxygen", blood_oxygen);
 
     $.ajax({
         url: retrialUrl,
@@ -293,7 +325,8 @@ function get_trial_result(md5, callback) {
 }
 
 // 包装函数
-function wrap_upload(md5) {
+//function wrap_upload(md5) {
+function wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen) {
     // 体态文件暂时不考虑md5
     // 判断是否勾选了“综合”
     if(is_compre_checked()) {
@@ -317,7 +350,7 @@ function wrap_upload(md5) {
             console.log("上传体态文件");
             hide_loading();
             trail_loading();
-            get_trial_result(md5, function(data) {
+            get_trial_result(md5, temperature, curr_heart_rate, blood_oxygen, function(data) {
 
                 //console.log(data)
                 hide_loading();
@@ -336,7 +369,7 @@ function wrap_upload(md5) {
         trail_loading();
         // 文件已存在
         // 直接测试
-        get_trial_result(md5, function(data) {
+        get_trial_result(md5, temperature, curr_heart_rate, blood_oxygen, function(data) {
 
             console.log(data)
             hide_loading();
@@ -349,6 +382,33 @@ function wrap_upload(md5) {
         })
     }
 }
+
+
+// 判断输入
+function validate_temp_hrate_bloodox(temperature, curr_heart_rate, blood_oxygen) {
+    if(temperature === '' || typeof(temperature) === 'undefined') {
+        fail_prompt('请输入测试者体温！')
+        return false
+    } else if(isNaN(temperature) || temperature <= 20 || temperature >= 42) {
+        fail_prompt("温度格式不正确！")
+        return false
+    } else if(curr_heart_rate === '' || typeof(curr_heart_rate) === 'undefined') {
+        fail_prompt('请输入当前心率！')
+        return false
+    } else if(isNaN(curr_heart_rate) || curr_heart_rate < 0 || curr_heart_rate >= 500) {
+        fail_prompt('心率格式不正确！')
+        return false
+    } else if(blood_oxygen === '' || typeof(blood_oxygen) === 'undefined') {
+        fail_prompt('请输入血氧饱和度！')
+        return false
+    } else if(isNaN(blood_oxygen) || blood_oxygen < 0) {
+        fail_prompt("血氧饱和度格式不正确！")
+        return false
+    }
+
+    return true;
+}
+
 
 
 
@@ -370,6 +430,10 @@ function get_checkbox_value(){
 
 function is_compre_checked() {
     return document.getElementsByName('check')[4].checked;
+}
+
+function is_health_checked() {
+    return document.getElementsByName('check')[3].checked;
 }
 
 // 全选

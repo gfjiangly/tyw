@@ -19,16 +19,16 @@ def model_trial(df, person_info):
     # 调用饥饿模型
     hungry_code = 0  # 0-未开启测试
     hungry = -1
-    if cfg.TEST.HUNGRY_MODEL.OPEN:
-        hungry_loader = HungryLoader()
-        ppg = hungry_loader.process_test_data(df['PPG'])
-        if len(ppg) == 0:
-            print('饥饿采集数据太短，请增加采集时间！')
-            hungry_code = -1
-        else:
-            hungry_code = 1
-            hungry = hungry_model.test(ppg)
-            hungry = int(process_hungry_result(hungry))
+    # if cfg.TEST.HUNGRY_MODEL.OPEN:
+    #     hungry_loader = HungryLoader()
+    #     ppg = hungry_loader.process_test_data(df['PPG'])
+    #     if len(ppg) == 0:
+    #         print('饥饿采集数据太短，请增加采集时间！')
+    #         hungry_code = -1
+    #     else:
+    #         hungry_code = 1
+    #         hungry = hungry_model.test(ppg)
+    #         hungry = int(process_hungry_result(hungry))
     hungry_res = create_trial_bean(hungry_code, state=hungry)
 
     # 调用恐惧模型
@@ -53,16 +53,16 @@ def model_trial(df, person_info):
     fitness_model = FitnessModel(person_info)
     fitness_code = 0
     fitness = -1
-    if cfg.TEST.FITNESS_MODEL.OPEN:
-        fitness_loader = FitnessLoader()
-        ppg_feats = fitness_loader.process_test_data(df['PPG'])
-        if len(ppg_feats) == 0:
-            print('心率数据采集太短，请增加采集时间！')
-            fitness_code = -1
-        else:
-            fitness_code = 1
-            fitness = fitness_model.test(ppg_feats)
-            fitness = int(process_fear_result(fitness))
+    # if cfg.TEST.FITNESS_MODEL.OPEN:
+    #     fitness_loader = FitnessLoader()
+    #     ppg_feats = fitness_loader.process_test_data(df['PPG'])
+    #     if len(ppg_feats) == 0:
+    #         print('心率数据采集太短，请增加采集时间！')
+    #         fitness_code = -1
+    #     else:
+    #         fitness_code = 1
+    #         fitness = fitness_model.test(ppg_feats)
+    #         fitness = int(process_fear_result(fitness))
     com_res = create_trial_bean(fitness_code, state=fitness)
 
     # 健康结果

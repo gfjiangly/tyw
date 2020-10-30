@@ -22,6 +22,12 @@ var fileUploadUrl = basUrl + 'up_data';
 // 体态文件上传地址
 var bodyFileUploadUrl = basUrl + "up_body";
 
+// 上传温度、当前心率、血氧饱和度
+var healthConfigUploadUrl = basUrl + "up_health_config"
+
+// 获取健康数据
+var getHealthConfigUrl = basUrl + "config/health"
+
 // 获取历史结果
 var historyAllResultUrl = basUrl + "history/result/all";
 
@@ -74,6 +80,8 @@ var user_no_found_msg = "nofound";
 
 // 指标
 var TARGET_ITEM  = ['hungry', 'fear', 'tired', 'health', 'comprehensive'];
+
+var HEALTH_CONFIG_ITEM = ['temperature', 'curr_heart_rate', 'blood_oxygen']
 
 var CONFIG_ITEM = ['HUNGRY_MODEL', 'FEAR_MODEL', 'TIRED_MODEL', 'HEALTH_MODEL', 'FITNESS_MODEL']
 
@@ -197,7 +205,7 @@ var hide_loading = function() {
  * @param text 文字
  * @param type 类型 【default, info, success, warning, fail】
  */
-var type_color_mapping = {'default': '#888', 'info': '#0099FF', 'success': '#228B22', 'warning': '#F7C709', 'fail': '#FF0000'}
+var type_color_mapping = {'default': '#888', 'info': '#0099FF', 'success': '#228B22', 'warning': '#F7C709', 'fail': '#FF0000', 'black': '#000000'}
 var text_rendering = function(dom, text, type) {
     dom.text(text).css('color', type_color_mapping[type])
 }
@@ -220,6 +228,10 @@ var warning_text = function(dom, text) {
 
 var fail_text = function(dom, text) {
     text_rendering(dom, text, 'fail')
+}
+
+var black_text = function(dom, text) {
+    text_rendering(dom, text, 'black')
 }
 
 // 根据指标状态设置文本
