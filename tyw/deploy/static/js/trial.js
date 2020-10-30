@@ -137,68 +137,81 @@ $('#upload-btn').click(function(){
     }
 
 
-    file = $('#file-upload')[0].files[0];
+    // 只有健康
+    if(is_health_checked() && !is_compre_checked() && !is_hungry_checked() && !is_fear_checked() && !is_tired_checked()) {
 
-    if(typeof(file) === 'undefined' || file === null) {
-        fail_prompt("测试文件不能为空")
-        return
-    }
-
-    filename = $('#file-upload')[0].files[0]['name'];
-
-    // 加载组件
-    upload_loading()
-
-    // 求文件的 md5
-    calculate_md5(file, function(md5) {
-
-        username = $('#trial_person_text').val();
-        console.log(username)
-
-        // 然后传送 md5
-        upload_file_attr(md5, username, function(data) {
-
-            msg = data.msg
-
-            if(msg == no_user_msg) {
-                hide_loading();
-                alert("请先配置测试者信息");
-                return;
-            } else if(msg === user_no_found_msg) {
-                hide_loading();
-                alert("测试者不存在，请先配置");
-                return;
-            }
-
-            if(msg === no_lock_msg) {
-                hide_loading();
-                alert('系统繁忙，请稍后重试')
-
-            } else if(msg === file_existed_msg) {
-
-                wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen)
-
-            } else {
-                // 上传文件
-                upload_file(file, md5, filename, function(data) {
-
-                    hide_loading();
-
-                    // 上传成功
-                    if(data.code === 1) {
-
-                        wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen)
-
-                    } else {
-                        fail_prompt("上传失败")
-                    }
-
-                })
-            }
-
+        trail_loading();
+        upload_health_config(temperature, curr_heart_rate, blood_oxygen, function(data) {
+            hide_loading();
 
         })
-    });
+    } else {
+
+        file = $('#file-upload')[0].files[0];
+
+        if(typeof(file) === 'undefined' || file === null) {
+            fail_prompt("测试文件不能为空")
+            return
+        }
+
+        filename = $('#file-upload')[0].files[0]['name'];
+
+        // 加载组件
+        upload_loading()
+
+        // 求文件的 md5
+        calculate_md5(file, function(md5) {
+
+            username = $('#trial_person_text').val();
+            console.log(username)
+
+            // 然后传送 md5
+            upload_file_attr(md5, username, function(data) {
+
+                msg = data.msg
+
+                if(msg == no_user_msg) {
+                    hide_loading();
+                    alert("请先配置测试者信息");
+                    return;
+                } else if(msg === user_no_found_msg) {
+                    hide_loading();
+                    alert("测试者不存在，请先配置");
+                    return;
+                }
+
+                if(msg === no_lock_msg) {
+                    hide_loading();
+                    alert('系统繁忙，请稍后重试')
+
+                } else if(msg === file_existed_msg) {
+
+                    wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen)
+
+                } else {
+                    // 上传文件
+                    upload_file(file, md5, filename, function(data) {
+
+                        hide_loading();
+
+                        // 上传成功
+                        if(data.code === 1) {
+
+                            wrap_upload(md5, temperature, curr_heart_rate, blood_oxygen)
+
+                        } else {
+                            fail_prompt("上传失败")
+                        }
+
+                    })
+                }
+
+
+            })
+        });
+    }
+
+
 
 
 });
@@ -243,6 +256,26 @@ $('body').on('click', '.view-btn', function() {
     window.open(url)
 })
 
+
+// 上传健康配置
+function upload_health_config(temperature, curr_heart_rate, blood_oxygen, callback) {
+    $.ajax({
+        url: healthConfigUploadUrl,
+        type: "post",
+        data: {
+            "temperature": temperature,
+            "curr_heart_rate": curr_heart_rate,
+            "blood_oxygen": blood_oxygen
+        },
+        success : function(data){
+            callback(data)
+        },
+        error: function () {
+            hide_loading();
+            alert("上传失败！");
+        }
+    })
+}
 
 // 上传 MD5 和 用户名
 function upload_file_attr(md5, username, callback) {

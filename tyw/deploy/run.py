@@ -116,6 +116,16 @@ def get_health_config():
     res = dao.getPersonInfo(username)
     return flask.jsonify(create_success_data_bean(res))
 
+
+# 上传健康
+@app.route('/up_health_config', methods=['POST'])
+def upload_health_config():
+    temperature = flask.request.form['temperature']
+    curr_heart_rate = flask.request.form['curr_heart_rate']
+    blood_oxygen = flask.request.form['blood_oxygen']
+    return do_trial2(temperature, curr_heart_rate, blood_oxygen)
+
+
 # 上传 md5 和文件名
 @app.route('/up_md5', methods=['GET'])
 def upload_file_attr():
@@ -417,6 +427,10 @@ def do_trial(fid, file_path):
 
     item = ResultBean.create_success_data_bean(res)
     return item
+
+
+def do_trial2(temperature, curr_heart_rate, blood_oxygen):
+    return "res"
 
 
 # 保存 config
