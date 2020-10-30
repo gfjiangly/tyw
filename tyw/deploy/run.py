@@ -430,7 +430,7 @@ def do_trial(fid, file_path):
 
 
 def do_trial2(temperature, curr_heart_rate, blood_oxygen):
-    return "res"
+    return health_trial(temperature, curr_heart_rate, blood_oxygen)
 
 
 # 保存 config

@@ -51,12 +51,12 @@ def model_trial(df, person_info):
     # 调用疲劳模型
     tired_res = create_trial_bean(0, "未开启测试")
 
-    # 健康结果
-    health_code = 0
-    health = -1
-    if cfg.TEST.HEALTH_MODEL.OPEN:
-        health = health_model.test(None)
-    health_res = create_trial_bean(health_code, state=health)
+    # # 健康结果
+    # health_code = 0
+    # health = -1
+    # if cfg.TEST.HEALTH_MODEL.OPEN:
+    #     health = health_model.test(None)
+    # health_res = create_trial_bean(health_code, state=health)
 
     # 调用综合体能模型
     fitness_model = FitnessModel(person_info)
@@ -80,6 +80,20 @@ def model_trial(df, person_info):
         "tired": tired_res,
         "health": health_res,
         "comprehensive": fitness_res
+    }
+    return result
+
+
+def health_trial(temperature, curr_heart_rate, blood_oxygen):
+    health_info = {
+        'temperature': float(temperature),
+        'curr_heart_rate': float(curr_heart_rate),
+        'blood_oxygen': float(blood_oxygen)
+    }
+    health = health_model.test(health_info)
+    health_res = create_trial_bean(0, state=health)
+    result = {
+        "health": health_res,
     }
     return result
 
