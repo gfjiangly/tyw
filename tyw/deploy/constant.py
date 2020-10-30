@@ -15,6 +15,8 @@ ALL_RESULT_ITEM = ['id', 'filename', 'upload_time',
                    'tired', 'tired.code',
                    'comprehensive', 'comprehensive.code',
                    'health', 'health.code',
+                   'ours', 'ours.code',
+                   'sport', 'sport.code',
                    'temperature', 'curr_heart_rate', 'blood_oxygen']
 
 TARGET_ITEM = ['hungry', 'fear', 'tired', 'health', 'comprehensive']

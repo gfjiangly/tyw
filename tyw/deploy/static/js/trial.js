@@ -145,7 +145,7 @@ $('#upload-btn').click(function(){
             hide_loading();
             success_prompt("测试成功")
 
-            health_text = data['health']['state']
+            health_text = data['state']
             if(health_text === 0 || health_text === '0') {
                 health_text = '<span style="color: #228B22">健康</span>'
             } else {
@@ -234,7 +234,8 @@ function show_result(data) {
     for(var i = 0; i < target_count; i++) {
         key = TARGET_ITEM[i]
         if(key === 'comprehensive') {
-            resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_comprehensive_state_text_html(data[key]['code'], data[key]['state']) + '</h5>';
+
+            resDom = resDom + get_comprehensive_state_text_html(data[key]['code'], data[key]['state']);
         } else {
             resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
         }

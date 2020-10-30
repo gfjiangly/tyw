@@ -16,7 +16,7 @@ fear_model = FearModel(cfg)
 health_model = HealthModel()
 
 
-def model_trial(df, person_info, sport_file=None):
+def model_trial(df, person_info, health_info, sport_file=None):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
     hungry_code = 0  # 0-未开启测试
@@ -57,6 +57,7 @@ def model_trial(df, person_info, sport_file=None):
     # if cfg.TEST.HEALTH_MODEL.OPEN:
     #     health = health_model.test(None)
     # health_res = create_trial_bean(health_code, state=health)
+    health_res = health_trial(health_info['temperature'], health_info['curr_heart_rate'], health_info['blood_oxygen'])
 
     # 调用综合体能模型
     fitness_model = FitnessModel(person_info)
@@ -72,13 +73,13 @@ def model_trial(df, person_info, sport_file=None):
             fitness_code = 1
             fitness = fitness_model.test(ppg_feats)
             # fitness = int(process_fitness_result(fitness))
-    fitness_ours_res = create_trial_bean(fitness_code, state=fitness)
+    fitness_res = create_trial_bean(fitness_code, state=fitness)
 
     result = {
         "hungry": hungry_res,
         "fear": fear_res,
         "tired": tired_res,
-        # "health": health_res,
+        "health": health_res,
         "comprehensive": fitness_res
     }
     return result
@@ -91,11 +92,11 @@ def health_trial(temperature, curr_heart_rate, blood_oxygen):
         'blood_oxygen': float(blood_oxygen)
     }
     health = health_model.test(health_info)
-    health_res = create_trial_bean(0, state=health)
-    result = {
-        "health": health_res,
-    }
-    return result
+    health_res = create_trial_bean(1, state=health)
+    # result = {
+    #     "health": health_res,
+    # }
+    return health_res
 
 
 def process_hungry_result(hungry):
@@ -109,3 +110,4 @@ def process_fear_result(fear):
 
 def process_fitness_result(fitness):
     return np.mean(fitness)
+
