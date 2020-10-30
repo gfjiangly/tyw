@@ -334,11 +334,12 @@ var set_comprehensive_state_text = function(dom, code, state) {
                 } else {
                     weight = '较弱'
                 }
-                text = text + title + item + '%(' + weight + '); '
+                text = text + '<p>' + title + item + '%(' + weight + ')</p> '
 
 　　
             }
-            black_text(dom, text)
+            dom.html(text).css('color', type_color_mapping['black'])
+//            black_text(dom, text)
         }
 
     } else if(code === '0') {
@@ -429,7 +430,7 @@ var get_comprehensive_state_text_html = function(code, state, isHistory) {
                 }
 
                 if(isHistory) {
-                    tmpDom = tmpDom + title + item + '%(' + weight + ')；'
+                    tmpDom = tmpDom + '<p>' + title + item + '%(' + weight + ')</p>'
                 } else {
 
                     tmpDom = tmpDom + '<h5><span style="color:' + color + '">' + title + item + '%(' + weight + ')</span></h5>'
