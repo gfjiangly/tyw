@@ -53,6 +53,7 @@ def upload_test():
 def upload_person_info():
     username = flask.request.form['username']
     age = flask.request.form['age']
+    weight = flask.request.form['weight']
     max_beats = int(flask.request.form['max_beats'])
     min_beats = int(flask.request.form['min_beats'])
 
@@ -70,7 +71,7 @@ def upload_person_info():
         max_beats = 220 - int(age)
 
     # 持久化
-    dao.setPersonInfo(username, age, min_beats, max_beats)
+    dao.setPersonInfo(username, age, weight, min_beats, max_beats)
 
     result = {"min": min_beats, "max": max_beats}
 
@@ -431,7 +432,6 @@ def do_trial(fid, file_path):
 
 def do_trial2(temperature, curr_heart_rate, blood_oxygen):
     return health_trial(temperature, curr_heart_rate, blood_oxygen)
-
 
 # 保存 config
 def save_config(config):

@@ -5,6 +5,7 @@ $(document).ready(function(){
     get_info(function(data) {
         $('#name').val(data.data['username'])
         $('#age').val(data.data['age'])
+        $('#weight').val(data.data['weight'])
 //        $('#temperature').val(data.data['temperature'])
 //        $('#curr-heart-rate').val(data.data['curr_heart_rate'])
 //        $('#blood-oxygen').val(data.data['blood_oxygen'])
@@ -40,8 +41,10 @@ $('#person-config-btn').click(function() {
 
     var username = $('#name').val();
     var age = $('#age').val();
+    var weight = $('#weight').val()
     var min_beats = $('#min-hbeat').val();
     var max_beats = $('#max-hbeat').val();
+
 //    var temperature = $('#temperature').val();
 //    var curr_heart_rate = $('#curr-heart-rate').val();
 //    var blood_oxygen = $('#blood-oxygen').val()
@@ -55,6 +58,12 @@ $('#person-config-btn').click(function() {
     } else if(isNaN(age) || age <= 0 || age >= 200) {
         fail_prompt('年龄格式不正确！')
         return;
+    } else if(weight === '' || typeof(weight) === 'undefined') {
+        fail_prompt('请输入体重')
+        return
+    } else if(isNaN(weight) || weight < 0 || weight > 500) {
+        fail_prompt("体重格式不正确")
+        return
     }
 
 //    else if(temperature === '' || typeof(temperature) === 'undefined') {
@@ -93,7 +102,7 @@ $('#person-config-btn').click(function() {
     }
 
     mLoading_mask("配置中...");
-    upload_info(username, age, min_beats, max_beats, function(data) {
+    upload_info(username, age, weight, min_beats, max_beats, function(data) {
 
         // 判断是否要上传文件
         beat_file = $('#heart-file-upload')[0].files[0];
@@ -119,7 +128,7 @@ $('#person-config-btn').click(function() {
 });
 
 // 上传测试者信息
-function upload_info(username, age, min_beats, max_beats, callback) {
+function upload_info(username, age, weight, min_beats, max_beats, callback) {
 
     $.ajax({
         url: uploadPersonInfoUrl,
@@ -127,6 +136,7 @@ function upload_info(username, age, min_beats, max_beats, callback) {
         data: {
             "username": username,
             "age": age,
+            "weight": weight,
             "min_beats": min_beats,
             "max_beats": max_beats
         },

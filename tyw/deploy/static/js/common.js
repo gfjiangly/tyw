@@ -236,7 +236,7 @@ var black_text = function(dom, text) {
 
 // 根据指标状态设置文本
 var target_text_mapping = {'hungry': '饥饿状态', 'fear': '恐惧状态', 'tired': '疲劳状态', 'comprehensive': '综合状态', 'health': '健康状态'}
-var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不好', '好'], 'health': ['不健康', '健康']}
+var target_result_mapping = {'hungry': ['不饥饿', '饥饿'], 'fear': ['不恐惧', '恐惧'], 'tired': ['不疲劳', '疲劳'], 'comprehensive': ['不好', '好'], 'health': ['健康', '异常']}
 var code_status_mapping = {'0': '未开启测试', '1': '未知', '-1': '测试数据长度不够', '-401': '上传未测试' }
 
 var set_target_state_text = function(dom, target_title, code, state) {

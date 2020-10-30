@@ -143,7 +143,17 @@ $('#upload-btn').click(function(){
         trail_loading();
         upload_health_config(temperature, curr_heart_rate, blood_oxygen, function(data) {
             hide_loading();
+            success_prompt("测试成功")
 
+            health_text = data['health']['state']
+            if(health_text === 0 || health_text === '0') {
+                health_text = '<span style="color: #228B22">健康</span>'
+            } else {
+                health_text = '<span style="color: #FF0000">异常</span>'
+            }
+
+            resDom = '<h5>' + "健康状态" + ':  ' + health_text + '</h5>';
+            $('.trial-result').html(resDom);
         })
     } else {
 

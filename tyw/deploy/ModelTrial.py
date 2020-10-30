@@ -78,7 +78,7 @@ def model_trial(df, person_info):
         "hungry": hungry_res,
         "fear": fear_res,
         "tired": tired_res,
-        "health": health_res,
+        # "health": health_res,
         "comprehensive": fitness_res
     }
     return result
