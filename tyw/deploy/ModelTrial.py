@@ -4,7 +4,6 @@ from tyw.loader.HungryLoader import HungryLoader
 from tyw.model.HungryModel import HungryModel
 from tyw.loader.FearLoader import FearLoader
 from tyw.model.FearModel import FearModel
-from tyw.model.TiredModel import TiredModel
 from tyw.model.HealthModel import HealthModel
 from tyw.loader.FitnessLoader import FitnessLoader
 from tyw.model.FitnessModel import FitnessModel
@@ -15,7 +14,6 @@ hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
 health_model = HealthModel()
-tired_model = TiredModel()
 
 
 def model_trial(df, person_info, health_info, sport_file=None):
