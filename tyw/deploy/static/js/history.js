@@ -124,7 +124,7 @@ $('body').on('click', '.retrial-btn', function() {
             target_count = HEALTH_CONFIG_ITEM.length
             for(var i = target_count - 1; i >= 0; i--) {
 
-                black_text(tdDom, health_target_text(data.data[HEALTH_CONFIG_ITEM[i]]))
+                //black_text(tdDom, health_target_text(data.data[HEALTH_CONFIG_ITEM[i]]))
                 tdDom = tdDom.prev()
             }
 

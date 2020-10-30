@@ -415,7 +415,7 @@ def do_trial(fid, file_path):
 
     # 把健康配置也作为结果返回
 
-    item = ResultBean.create_success_data_bean(dict(res, **health_info))
+    item = ResultBean.create_success_data_bean(res)
     return item
 
 

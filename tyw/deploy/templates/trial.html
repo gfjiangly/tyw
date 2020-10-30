@@ -94,9 +94,9 @@
                     <div class="check-config">
                          <span style="padding-bottom: 30px; font-size: 25px;" class="header">测试配置</span>
                         <div>
-                            <label>饥饿 <input style="margin-right: 10px;" id="hungry-check" name="check" type="checkbox" value="hungry"></label>
-                            <label>恐惧 <input style="margin-right: 10px;" id="fear-check" name="check" type="checkbox" value="fear"></label>
-                            <label>疲劳 <input style="margin-right: 10px;" id="tired-check" name="check" type="checkbox" value="tired"></label>
+                            <label>饥饿 <input onclick="otherCheckBoxClick()" style="margin-right: 10px;" id="hungry-check" name="check" type="checkbox" value="hungry"></label>
+                            <label>恐惧 <input onclick="otherCheckBoxClick()" style="margin-right: 10px;" id="fear-check" name="check" type="checkbox" value="fear"></label>
+                            <label>疲劳 <input onclick="otherCheckBoxClick()" style="margin-right: 10px;" id="tired-check" name="check" type="checkbox" value="tired"></label>
                             <label>健康  <input onclick="healthClick()" style="margin-right: 10px;" id="health-check" name="check" type="checkbox" value="health"></label>
                             <label>综合  <input onclick="compreClick()" style="margin-right: 10px;" id="comprehensive-check" name="check" type="checkbox" value="comprehensive"></label>
                         </div>
@@ -124,16 +124,25 @@
                 </form>
                 </div>
 
+                <div id="file1_upload_div">
+                    <h3 style="padding-top: 30px">上传测试文件</h3>
+                    <form id="file-form" method="post" enctype="multipart/form-data">
+                        <div class="file-loading">
+                            <input id="file-upload" name="data" class="file" type="file" data-theme="fas">
+                        </div>
 
-                <h3 style="padding-top: 30px">上传测试文件</h3>
-                <form id="file-form" method="post" enctype="multipart/form-data">
-                    <div class="file-loading">
-                        <input id="file-upload" name="data" class="file" type="file" data-theme="fas">
-                    </div>
-                    <div id="file2_upload_div" style="padding-top: 10px;"></div>
-                    <br/>
-                    <button id="upload-btn" type="button" class="btn btn-primary">上传</button>
-                </form>
+                    </form>
+                </div>
+                <div>
+                    <form method="post" enctype="multipart/form-data">
+                        <div id="file2_upload_div" style="padding-top: 10px;">
+                                <input id="file2-upload" name="data" class="file" type="file" data-theme="fas">
+                        </div>
+                        <br/>
+                        <button id="upload-btn" type="button" class="btn btn-primary">测试</button>
+                    </form>
+                </div>
+
 
                 <div style="margin-top: 40px" class="panel panel-default">
                     <div class="panel-heading">

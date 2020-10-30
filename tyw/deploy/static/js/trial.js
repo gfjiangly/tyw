@@ -1,4 +1,5 @@
 create_fileinput('#file-upload', '选择测试文件');
+create_fileinput('#file2-upload', '选择体态文件')
 
 // 根据配置信息设置复选框
 $(document).ready(function(){
@@ -31,6 +32,7 @@ $(document).ready(function(){
 
     compreClick();
     healthClick();
+    otherCheckBoxClick();
 })
 
 
@@ -41,14 +43,24 @@ function compreClick() {
     var checked = is_compre_checked()
 
     if(checked) {
-        dom = '<input id="file2-upload" name="data" class="file" type="file" data-theme="fas">'
+
+        $('#file1_upload_div').show()
+        $('#file2_upload_div').show()
+        //dom = '<input id="file2-upload" name="data" class="file" type="file" data-theme="fas">'
 
         //$('#file2_upload_div')
-        $('#file2_upload_div').html(dom)
-        create_fileinput('#file2-upload', '选择体态文件')
+        //$('#file2_upload_div').html(dom)
+
 
     } else {
-        $('#file2_upload_div').empty();
+
+        $('#file2_upload_div').hide()
+        if(!is_hungry_checked() && !is_fear_checked() && !is_tired_checked()) {
+            $('#file1_upload_div').hide()
+        } else {
+            $('#file1_upload_div').show()
+        }
+        //$('#file2_upload_div').empty();
     }
 }
 
@@ -56,13 +68,27 @@ function compreClick() {
 function healthClick() {
     var checked = is_health_checked();
     if(checked) {
-
         $('#form-div').show()
     } else {
         $('#form-div').hide()
     }
 }
 
+function otherCheckBoxClick() {
+
+    if(!is_hungry_checked() && !is_fear_checked() && !is_tired_checked() && !is_compre_checked()) {
+        $('#file1_upload_div').hide()
+        $('#file2_upload_div').hide()
+    } else if(is_compre_checked()) {
+        $('#file1_upload_div').show()
+        $('#file2_upload_div').show()
+    } else if(!is_compre_checked()) {
+        $('#file1_upload_div').show()
+        $('#file2_upload_div').hide()
+    }
+
+
+}
 
 // 计算文件的 md5
 function calculate_md5(file, callback) {
@@ -436,6 +462,20 @@ function is_health_checked() {
     return document.getElementsByName('check')[3].checked;
 }
 
+function is_hungry_checked() {
+    return document.getElementsByName('check')[0].checked;
+}
+
+function is_fear_checked() {
+    return document.getElementsByName('check')[1].checked;
+}
+
+function is_tired_checked() {
+    return document.getElementsByName('check')[2].checked;
+}
+
+
+
 // 全选
 function set_checkbox_all() {
     $('[name="check"]').attr("checked",'true')
@@ -459,8 +499,8 @@ function set_checkbox_none() {
 //               console.log("开启");
 //             }else{
 //              console.log("关闭");
-//             }
 //         }
+//             }
 //});
 //
 //$('[name="status"]').bootstrapSwitch("size","small");
