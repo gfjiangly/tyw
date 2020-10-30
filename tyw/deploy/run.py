@@ -107,6 +107,15 @@ def get_person_info():
     return flask.jsonify(create_success_data_bean(res))
 
 
+# 获取健康配置
+@app.route('/config/health', methods=['GET'])
+def get_health_config():
+    username = getUser()
+    if username is None:
+        return flask.jsonify(create_fail_bean("未配置"))
+    res = dao.getPersonInfo(username)
+    return flask.jsonify(create_success_data_bean(res))
+
 # 上传 md5 和文件名
 @app.route('/up_md5', methods=['GET'])
 def upload_file_attr():
@@ -236,7 +245,11 @@ def do_trial_file():
     fid = flask.request.form['fid']
     md5 = flask.request.form['md5']
     config = flask.request.form['config']
-    is_save = flask.request.form['save_config']
+    is_save = flask.request.form['save_config'].lower()
+    is_health_config = flask.request.form['health_config'].lower()
+    temperature = flask.request.form['temperature']
+    curr_heart_rate = flask.request.form['curr_heart_rate']
+    blood_oxygen = flask.request.form['blood_oxygen']
 
     filename = ""
 
@@ -261,6 +274,15 @@ def do_trial_file():
     tmp_config = cfg['TEST']
     save_config(config)
 
+    # 保存健康配置
+    # is_save 为 false，表示是“重测”，就不保存健康配置了
+    if is_save == 'true':
+        if is_health_config != 'true':
+            temperature = -1
+            curr_heart_rate = -1
+            blood_oxygen = -1
+        dao.setHealthConfig(fid, temperature, curr_heart_rate, blood_oxygen)
+
     if filename == "":
         return flask.jsonify(ResultBean.create_fail_bean("文件不存在"))
 
@@ -268,7 +290,7 @@ def do_trial_file():
     item = do_trial(fid, file_path)
 
     # 如果此次测试不保存配置信息，则恢复
-    if not is_save:
+    if is_save == 'false':
         cfg['TEST'] = tmp_config
 
     return flask.jsonify(item)
@@ -372,6 +394,11 @@ def do_trial(fid, file_path):
     df = pickle.load(f)
 
     # 算法调用处
+
+    # 获取健康的配置
+    # -1 表示此项值无效，通常在前端没有勾选“健康”时为 -1
+    health_info = dao.getHealthConfig(fid)
+
     person_info = dao.getPersonInfo(getUser())
     res = model_trial(df, person_info)
     ###################
@@ -386,7 +413,9 @@ def do_trial(fid, file_path):
     # return_data = dict(zip(TARGET_ITEM, return_data))
     # return_data['fid'] = fid
 
-    item = ResultBean.create_success_data_bean(res)
+    # 把健康配置也作为结果返回
+
+    item = ResultBean.create_success_data_bean(dict(res, **health_info))
     return item
 
 

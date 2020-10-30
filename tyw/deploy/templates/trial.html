@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>体域网测试平台</title>
+    <title>体征识别软件 V1.00</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/static/bootstrap-dist/css/bootstrap.min.css" rel="stylesheet">
@@ -39,7 +39,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand">体域网测试平台</a>
+          <a class="navbar-brand">体征识别软件 V1.00</a>
         </div>
 <!--        <div id="navbar" class="navbar-collapse collapse">-->
 <!--          <ul class="nav navbar-nav navbar-right">-->
@@ -97,11 +97,33 @@
                             <label>饥饿 <input style="margin-right: 10px;" id="hungry-check" name="check" type="checkbox" value="hungry"></label>
                             <label>恐惧 <input style="margin-right: 10px;" id="fear-check" name="check" type="checkbox" value="fear"></label>
                             <label>疲劳 <input style="margin-right: 10px;" id="tired-check" name="check" type="checkbox" value="tired"></label>
-                            <label>健康  <input style="margin-right: 10px;" id="health-check" name="check" type="checkbox" value="health"></label>
+                            <label>健康  <input onclick="healthClick()" style="margin-right: 10px;" id="health-check" name="check" type="checkbox" value="health"></label>
                             <label>综合  <input onclick="compreClick()" style="margin-right: 10px;" id="comprehensive-check" name="check" type="checkbox" value="comprehensive"></label>
                         </div>
                     </div>
                 </div>
+
+                <div id="form-div">
+                    <form>
+
+                    <div class="form-group">
+                        <label for="temperature">体温:</label>
+                        <input type="text" class="form-control" id="temperature" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="curr-heart-rate">当前心率:</label>
+                        <input type="text" class="form-control" id="curr-heart-rate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="blood-oxygen">血氧饱和度:</label>
+                        <input type="text" class="form-control" id="blood-oxygen" required>
+                    </div>
+
+                </form>
+                </div>
+
 
                 <h3 style="padding-top: 30px">上传测试文件</h3>
                 <form id="file-form" method="post" enctype="multipart/form-data">

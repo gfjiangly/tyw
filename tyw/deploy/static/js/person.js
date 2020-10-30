@@ -5,6 +5,9 @@ $(document).ready(function(){
     get_info(function(data) {
         $('#name').val(data.data['username'])
         $('#age').val(data.data['age'])
+//        $('#temperature').val(data.data['temperature'])
+//        $('#curr-heart-rate').val(data.data['curr_heart_rate'])
+//        $('#blood-oxygen').val(data.data['blood_oxygen'])
         $('#min-hbeat').val(data.data['min_beats'])
         $('#max-hbeat').val(data.data['max_beats'])
     })
@@ -39,6 +42,9 @@ $('#person-config-btn').click(function() {
     var age = $('#age').val();
     var min_beats = $('#min-hbeat').val();
     var max_beats = $('#max-hbeat').val();
+//    var temperature = $('#temperature').val();
+//    var curr_heart_rate = $('#curr-heart-rate').val();
+//    var blood_oxygen = $('#blood-oxygen').val()
 
     if(username === '' || typeof(username) === "undefined") {
         fail_prompt('请输入测试者姓名！')
@@ -50,6 +56,25 @@ $('#person-config-btn').click(function() {
         fail_prompt('年龄格式不正确！')
         return;
     }
+
+//    else if(temperature === '' || typeof(temperature) === 'undefined') {
+//        fail_prompt('请输入测试者体温！')
+//        return
+//    } else if(isNaN(temperature) || temperature <= 20 || temperature >= 42) {
+//        fail_prompt("温度格式不正确！")
+//        return
+//    } else if(curr_heart_rate === '' || typeof(curr_heart_rate) === 'undefined') {
+//        fail_prompt('请输入当前心率！')
+//        return
+//    } else if(isNaN(curr_heart_rate) || curr_heart_rate < 0 || curr_heart_rate >= 500) {
+//        fail_prompt('心率格式不正确！')
+//        return
+//    } else if(blood_oxygen === '' || typeof(blood_oxygen) === 'undefined') {
+//        fail_prompt('请输入血氧饱和度！')
+//    } else if(isNaN(blood_oxygen) || blood_oxygen < 0) {
+//        fail_prompt("血氧饱和度格式不正确！")
+//        return
+//    }
 
     if(is_min_checked() && (min_beats == '' || isNaN(min_beats) || min_beats < 0 || min_beats >= 400)) {
         fail_prompt("最小心率格式不正确！")
