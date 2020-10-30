@@ -72,13 +72,13 @@ def model_trial(df, person_info, sport_file=None):
             fitness_code = 1
             fitness = fitness_model.test(ppg_feats)
             # fitness = int(process_fitness_result(fitness))
-    fitness_ours_res = create_trial_bean(fitness_code, state=fitness)
+    fitness_res = create_trial_bean(fitness_code, state=fitness)
 
     result = {
         "hungry": hungry_res,
         "fear": fear_res,
         "tired": tired_res,
-        # "health": health_res,
+        "health": create_trial_bean(0),
         "comprehensive": fitness_res
     }
     return result
@@ -91,7 +91,7 @@ def health_trial(temperature, curr_heart_rate, blood_oxygen):
         'blood_oxygen': float(blood_oxygen)
     }
     health = health_model.test(health_info)
-    health_res = create_trial_bean(0, state=health)
+    health_res = create_trial_bean(1, state=health)
     result = {
         "health": health_res,
     }
@@ -105,7 +105,3 @@ def process_hungry_result(hungry):
 
 def process_fear_result(fear):
     return np.sum(fear) > 0
-
-
-def process_fitness_result(fitness):
-    return np.mean(fitness)
