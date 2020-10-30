@@ -48,7 +48,7 @@ TEST:
   FEAR_MODEL:
     OPEN: True
   TIRED_MODEL:
-    OPEN: False
+    OPEN: True
   HEALTH_MODEL:
     OPEN: True
   FITNESS_MODEL:

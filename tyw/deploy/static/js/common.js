@@ -258,18 +258,12 @@ var set_target_state_text = function(dom, target_title, code, state) {
         if(state === NO_STATE) {
             default_text(dom, '未知')
         } else if(state === 0) {
-            if(target_title === 'comprehensive' || target_title === 'health') {
-                fail_text(dom, text)
-            } else {
-                success_text(dom, text)
-            }
+
+            success_text(dom, text)
 
         } else if(state === 1) {
-            if(target_title === 'comprehensive' || target_title === 'health') {
-                success_text(dom, text)
-            } else {
-                fail_text(dom, text)
-            }
+
+            fail_text(dom, text)
         }
     } else if(code === '0') {
         info_text(dom, code_status_mapping[code])
@@ -328,19 +322,12 @@ var get_target_state_text_html = function(target_title, code, state) {
             text = '未知'
             color = type_color_mapping['default']
         } else if(state === 0) {
-            if(target_title === 'comprehensive' || target_title === 'health') {
-                color = type_color_mapping['fail']
-            } else {
-                color = type_color_mapping['success']
-            }
-            //color = type_color_mapping['success']
+
+            color = type_color_mapping['success']
         } else if(state === 1) {
-            if(target_title === 'comprehensive' || target_title === 'health') {
-                color = type_color_mapping['success']
-            } else {
-                color = type_color_mapping['fail']
-            }
-            //color = type_color_mapping['fail']
+
+            color = type_color_mapping['fail']
+
         }
     } else if(code === '0') {
         color = type_color_mapping['info']
@@ -358,12 +345,9 @@ var get_target_state_text_html = function(target_title, code, state) {
 // 获取综合指标
 var get_comprehensive_state_text_html = function(code, state) {
 
-    state = parseInt(state);
-
     code = parseInt(code)
-    //console.log(code)
-    text = state
     color = ''
+    text = ''
 
     if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
         code = '-401'
@@ -375,7 +359,18 @@ var get_comprehensive_state_text_html = function(code, state) {
             text = '未知'
             color = type_color_mapping['default']
         } else {
-            color = type_color_mapping['success']
+            color = type_color_mapping['black']
+
+            ours = state['ours']
+            sport = state['sport']
+
+            ours_text = '体态综合识别结果: ' + ours + '%(强度: >45%，较强)';
+            sport_text = '基于运行状态识别结果: ' + sport + '%(强度: <=45%，较弱)';
+
+            resDom = '<h5><span style="color:' + color + '">' + ours_text + '</span></h5>' +
+                     '<h5><span style="color:' + color + '">' + sport_text + '</span></h5>';
+
+            return resDom;
         }
 
     } else if(code === '0') {
@@ -387,9 +382,43 @@ var get_comprehensive_state_text_html = function(code, state) {
     }
 
 
-    resDom = '<span style="color:' + color + '">' + text + '</span>';
+    resDom = '<h5>综合状态: <span style="color:' + color + '">' + text + '</span></h5>';
     return resDom;
 }
+//var get_comprehensive_state_text_html = function(code, state) {
+//
+//    state = parseInt(state);
+//
+//    code = parseInt(code)
+//    //console.log(code)
+//    text = state
+//    color = ''
+//
+//    if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
+//        code = '-401'
+//    }
+//
+//    code = code.toString()
+//    if(code === '1') {
+//        if(state === NO_STATE) {
+//            text = '未知'
+//            color = type_color_mapping['default']
+//        } else {
+//            color = type_color_mapping['success']
+//        }
+//
+//    } else if(code === '0') {
+//        color = type_color_mapping['info']
+//        text = code_status_mapping[code]
+//    } else {
+//        color = type_color_mapping['warning']
+//        text = code_status_mapping[code]
+//    }
+//
+//
+//    resDom = '<span style="color:' + color + '">' + text + '</span>';
+//    return resDom;
+//}
 
 
 // 文件上传框

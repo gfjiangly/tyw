@@ -175,10 +175,21 @@ def setResult(fid, result):
 
         for title in titles:
 
-            # 判断是否有该向指标
-            code_field = title + '.' + 'code'
-            keys_mapping[title] = result[title]['state']
-            keys_mapping[code_field] = str(result[title]['code'])
+            if title == 'comprehensive' :
+                if result[title]['state'] != -1:
+                    keys_mapping['ours'] = result[title]['state']['ours']
+                    keys_mapping['ours.code'] = 1
+                    keys_mapping['sport'] = result[title]['state']['sport']
+                    keys_mapping['sport.code'] = 1
+                else:
+                    keys_mapping['ours.code'] = 0
+                    keys_mapping['ours'] = -1
+                    keys_mapping['sport.code'] = 0
+                    keys_mapping['sport'] = -1
+            else:
+                code_field = title + '.' + 'code'
+                keys_mapping[title] = result[title]['state']
+                keys_mapping[code_field] = str(result[title]['code'])
 
             # 设置 data
             # data_key = GRAPH_KEY_PREFIX + title + ':' + str(fid)
