@@ -95,7 +95,7 @@ var fill_table = function(domId, data) {
 
 //
 function health_target_text(text) {
-    if(text === null || text === "" || text === "-1") {
+    if(typeof(text) === "undefined" || text === null || text === "" || text === "-1") {
         text = "暂无"
     }
     return text
