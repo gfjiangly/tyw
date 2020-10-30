@@ -57,12 +57,12 @@ def model_trial(df, person_info, health_info, sport_file=None):
     tired_res = create_trial_bean(tired_code, state=tired)
 
     # 健康结果
-    health_code = 0
-    health = -1
     if cfg.TEST.HEALTH_MODEL.OPEN:
-        health_code = 1
-        health = health_model.test(health_info)
-    health_res = create_trial_bean(health_code, state=health)
+        health_res = health_trial(health_info['temperature'],
+                                  health_info['curr_heart_rate'],
+                                  health_info['blood_oxygen'])
+    else:
+        health_res = create_trial_bean(0)
 
     # 调用综合体能模型
     fitness_model = FitnessModel(person_info)
@@ -88,6 +88,20 @@ def model_trial(df, person_info, health_info, sport_file=None):
         "comprehensive": fitness_res
     }
     return result
+
+
+def health_trial(temperature, curr_heart_rate, blood_oxygen):
+    health_info = {
+        'temperature': float(temperature),
+        'curr_heart_rate': float(curr_heart_rate),
+        'blood_oxygen': float(blood_oxygen)
+    }
+    health = health_model.test(health_info)
+    health_res = create_trial_bean(1, state=health)
+    # result = {
+    #     "health": health_res,
+    # }
+    return health_res
 
 
 def process_hungry_result(hungry):

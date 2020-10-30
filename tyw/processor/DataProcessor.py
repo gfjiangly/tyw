@@ -149,11 +149,11 @@ class DataProcessor:
         else:
             hz = cfg.PROCESSOR.HZ  # 信号采样频率
         discard = cfg.PROCESSOR.DISCARD * hz  # 丢弃前后discard个数据
-        try:
-            data = pd.DataFrame(    # 10分钟150W, 4s1W
-                [item.split(',') for item in raw_data[46+discard:-discard]],
-                columns=[item.strip() for item in raw_data[45].split(',')])
-        except KeyError:
+
+        data = pd.DataFrame(    # 10分钟150W, 4s1W
+            [item.split(',') for item in raw_data[46+discard:-discard]],
+            columns=[item.strip() for item in raw_data[45].split(',')])
+        if data.shape[1] == 1:
             data = pd.DataFrame(    # 10分钟150W, 4s1W
                 [item.split() for item in raw_data[46+discard:-discard]],
                 columns=[item.strip() for item in raw_data[45].split()])
