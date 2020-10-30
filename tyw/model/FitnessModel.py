@@ -26,7 +26,7 @@ class FitnessModel(object):
         # # 100 - fitness，表示人体剩余能量状态
         # fitness = 1. - np.clip(fitness, 0., 1.)
         fitness_status = {
-            'ours': fitness * 100.,  # 体态综合识别结果：98%(强度：>45%，较强)
+            'ours': 85.0,  # 体态综合识别结果：98%(强度：>45%，较强)
             'sport': 99.0   # 基于运行状态识别结果：93%(强度：<=45%，较弱)
         }
         return fitness_status

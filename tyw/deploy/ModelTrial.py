@@ -71,7 +71,7 @@ def model_trial(df, person_info, sport_file=None):
         else:
             fitness_code = 1
             fitness = fitness_model.test(ppg_feats)
-            fitness = int(process_fitness_result(fitness))
+            # fitness = int(process_fitness_result(fitness))
     fitness_res = create_trial_bean(fitness_code, state=fitness)
 
     result = {
