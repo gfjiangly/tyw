@@ -285,7 +285,7 @@ var set_comprehensive_state_text = function(dom, code, state) {
         if(state === NO_STATE) {
             default_text(dom, '未知')
         } else {
-            default_text(dom, text)
+            success_text(dom, text)
         }
 
     } else if(code === '0') {
@@ -363,7 +363,7 @@ var get_comprehensive_state_text_html = function(code, state) {
             text = '未知'
             color = type_color_mapping['default']
         } else {
-            color = type_color_mapping['default']
+            color = type_color_mapping['success']
         }
 
     } else if(code === '0') {

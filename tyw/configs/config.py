@@ -32,7 +32,8 @@ __C.DATA = 'data/'
 __C.PROCESSOR = AttrDict()
 __C.PROCESSOR.USE_CLEAR = False
 __C.PROCESSOR.ANN_SRC = 'E:/tyw-data/original/anns'
-__C.PROCESSOR.DISCARD = 0
+__C.PROCESSOR.DISCARD = 5  # 丢弃前后5秒信号
+__C.PROCESSOR.HZ = 2000  # 1秒2000个点
 
 
 # Random note: avoid using '.ON' as a config key since yaml converts it to True;

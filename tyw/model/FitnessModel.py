@@ -24,8 +24,8 @@ class FitnessModel(object):
         fitness = (curr_heart_rate - self.min_heart_rate) / self.heart_rate_diff
         print('for fitness test: {}'.format(fitness))
         # 100 - fitness，表示人体剩余能量状态
-        fitness = 100. - np.clip(fitness, 0., 100.)
-        return fitness
+        fitness = 1. - np.clip(fitness, 0., 1.)
+        return 100 * fitness
 
 
 if __name__ == '__main__':

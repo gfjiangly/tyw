@@ -143,9 +143,20 @@ class DataProcessor:
 
     def load_data_from_raw_data(self, raw_data):
         """从原始数据中清洗出有用的通道"""
-        data = pd.DataFrame(    # 10分钟150W, 4s1W
-            [item.split() for item in raw_data[46:]],
-            columns=[item.strip() for item in raw_data[45].split()])
+        hz_value_str, hz_unit = raw_data[1].split()
+        if hz_unit == 'msec/sample':
+            hz = int(1000 / float(hz_value_str))
+        else:
+            hz = cfg.PROCESSOR.HZ  # 信号采样频率
+        discard = cfg.PROCESSOR.DISCARD * hz  # 丢弃前后discard个数据
+        try:
+            data = pd.DataFrame(    # 10分钟150W, 4s1W
+                [item.split(',') for item in raw_data[46+discard:-discard]],
+                columns=[item.strip() for item in raw_data[45].split(',')])
+        except KeyError:
+            data = pd.DataFrame(    # 10分钟150W, 4s1W
+                [item.split() for item in raw_data[46+discard:-discard]],
+                columns=[item.strip() for item in raw_data[45].split()])
         # self.channel_map[data.columns.tolist()[0]] = 'time'
         data = data[self.channel_map.keys()][1:].astype(float)
         # 使用data.columns = []修改不了

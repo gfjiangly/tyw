@@ -159,7 +159,11 @@ function show_result(data) {
     target_count = TARGET_ITEM.length
     for(var i = 0; i < target_count; i++) {
         key = TARGET_ITEM[i]
+    if(key === 'comprehensive') {
+        resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_comprehensive_state_text_html(data[key]['code'], data[key]['state']) + '</h5>';
+    } else {
         resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
+    }
     }
 
     //Object.keys(data).forEach(function(key){

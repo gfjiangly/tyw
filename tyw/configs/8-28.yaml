@@ -2,7 +2,7 @@ DEBUG: False
 DATA: 'E:/tyw-data/original/rename-txt'
 PROCESSOR:
   USE_CLEAR: False  # 因为使用了缓存，已经缓存了清洗后的文件
-  DISCARD: 300000
+  DISCARD: 5
 PPG:
   CHANNEL: 'CH1'
   ORIGIN_DISCARD: 10000  # 原始数据首尾丢弃长度

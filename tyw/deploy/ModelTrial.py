@@ -4,6 +4,7 @@ from tyw.loader.HungryLoader import HungryLoader
 from tyw.model.HungryModel import HungryModel
 from tyw.loader.FearLoader import FearLoader
 from tyw.model.FearModel import FearModel
+from tyw.model.HealthModel import HealthModel
 from tyw.loader.FitnessLoader import FitnessLoader
 from tyw.model.FitnessModel import FitnessModel
 from tyw.configs.config import merge_cfg_from_file, cfg
@@ -12,6 +13,7 @@ from tyw.deploy.ResultBean import *
 hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
+health_model = HealthModel()
 
 
 def model_trial(df, person_info):
@@ -50,7 +52,11 @@ def model_trial(df, person_info):
     tired_res = create_trial_bean(0, "未开启测试")
 
     # 健康结果
-    health_res = create_trial_bean(0, "未开启测试")
+    health_code = 0
+    health = -1
+    if cfg.TEST.HEALTH_MODEL.OPEN:
+        health = health_model.test(None)
+    health_res = create_trial_bean(health_code, state=health)
 
     # 调用综合体能模型
     fitness_model = FitnessModel(person_info)
