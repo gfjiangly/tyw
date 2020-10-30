@@ -408,10 +408,12 @@ def do_trial(fid, file_path):
 
     # 获取健康的配置
     # -1 表示此项值无效，通常在前端没有勾选“健康”时为 -1
-    health_info = dao.getHealthConfig(fid)
-
+    # health_info = dao.getHealthConfig(fid)
+    sport_file = dao.getBodyFileName(getUser())
+    sport_file = osp.join(
+        log_save_root, app.config['UPLOAD_FOLDER'], sport_file)
     person_info = dao.getPersonInfo(getUser())
-    res = model_trial(df, person_info)
+    res = model_trial(df, person_info, sport_file)
     ###################
 
     # 持久化测试结果

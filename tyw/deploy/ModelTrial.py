@@ -16,7 +16,7 @@ fear_model = FearModel(cfg)
 health_model = HealthModel()
 
 
-def model_trial(df, person_info):
+def model_trial(df, person_info, sport_file=None):
     # 将此处的result换为调用算法后的结果
     # 调用饥饿模型
     hungry_code = 0  # 0-未开启测试
