@@ -72,7 +72,19 @@ var fill_table = function(domId, data) {
         resDom = resDom + '<td>' + get_target_state_text_html('health', data[i]["health.code"], data[i]["health"]) + '</td>';
 
         // 综合显示一个数字
-        resDom = resDom + '<td>' + get_comprehensive_state_text_html(data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
+         //resDom = resDom + '<td>' + get_comprehensive_state_text_html(data[i]["comprehensive.code"], data[i]["comprehensive"], true) + '</td>';
+         ours_code = data[i]["ours.code"]
+         sport_code = data[i]["sport.code"]
+         com_code = '0'
+         if(ours_code === '1' || sport_code === '1') {
+            com_code = '1'
+         }
+         dict = {"ours": data[i]["ours"], "sport": data[i]["sport"]}
+         resDom = resDom + '<td style="width: 10px">' + get_comprehensive_state_text_html(com_code, dict, true) + '</td>';
+
+        // 综合
+
+
         //resDom = resDom + '<td>' + get_target_state_text_html('comprehensive', data[i]["comprehensive.code"], data[i]["comprehensive"]) + '</td>';
 
         // 体温、当前心率、血氧饱和度
@@ -132,6 +144,7 @@ $('body').on('click', '.retrial-btn', function() {
             target_count = TARGET_ITEM.length
             for(var i = target_count - 1; i >= 0; i--) {
                 if(TARGET_ITEM[i] === 'comprehensive') {
+                    //set_comprehensive_state_text(tdDom, data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])
                     set_comprehensive_state_text(tdDom, data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])
                 } else {
                     set_target_state_text(tdDom, TARGET_ITEM[i], data.data[TARGET_ITEM[i]]['code'], data.data[TARGET_ITEM[i]]['state'])

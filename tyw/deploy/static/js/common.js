@@ -275,8 +275,32 @@ var set_target_state_text = function(dom, target_title, code, state) {
 }
 
 // 设置综合指标
+//var set_comprehensive_state_text = function(dom, code, state) {
+//    state = parseInt(state);
+//    code = parseInt(code)
+//
+//    if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
+//        code = '-401'
+//    }
+//
+//    code = code.toString()
+//    if(code === '1') {
+//
+//        text = state
+//
+//        if(state === NO_STATE) {
+//            default_text(dom, '未知')
+//        } else {
+//            success_text(dom, text)
+//        }
+//
+//    } else if(code === '0') {
+//        info_text(dom, code_status_mapping[code])
+//    } else {
+//        warning_text(dom, code_status_mapping[code])
+//    }
+//}
 var set_comprehensive_state_text = function(dom, code, state) {
-    state = parseInt(state);
     code = parseInt(code)
 
     if(isNaN(code)  || typeof(code) === "undefined" || code === 'null' || code === '') {
@@ -291,7 +315,30 @@ var set_comprehensive_state_text = function(dom, code, state) {
         if(state === NO_STATE) {
             default_text(dom, '未知')
         } else {
-            success_text(dom, text)
+
+            text = ''
+            for (var key in state) {
+
+                title = ''
+                if(key === 'ours') {
+                    title = '体态综合识别结果: '
+                } else if(key === 'sport') {
+                    title = '基于运行状态识别结果: '
+                }
+
+                item = parseFloat(state[key]).toFixed(1)
+
+                weight = ''
+                if(item > 45) {
+                    weight = '较强'
+                } else {
+                    weight = '较弱'
+                }
+                text = text + title + item + '%(' + weight + '); '
+
+　　
+            }
+            black_text(dom, text)
         }
 
     } else if(code === '0') {
@@ -300,6 +347,7 @@ var set_comprehensive_state_text = function(dom, code, state) {
         warning_text(dom, code_status_mapping[code])
     }
 }
+
 
 
 // 获取某项指标对应的文字
@@ -343,7 +391,7 @@ var get_target_state_text_html = function(target_title, code, state) {
 }
 
 // 获取综合指标
-var get_comprehensive_state_text_html = function(code, state) {
+var get_comprehensive_state_text_html = function(code, state, isHistory) {
 
     code = parseInt(code)
     color = ''
@@ -361,16 +409,51 @@ var get_comprehensive_state_text_html = function(code, state) {
         } else {
             color = type_color_mapping['black']
 
-            ours = state['ours']
-            sport = state['sport']
+            tmpDom = ''
+            for (var key in state) {
 
-            ours_text = '体态综合识别结果: ' + ours + '%(强度: >45%，较强)';
-            sport_text = '基于运行状态识别结果: ' + sport + '%(强度: <=45%，较弱)';
+                title = ''
+                if(key === 'ours') {
+                    title = '体态综合识别结果: '
+                } else if(key === 'sport') {
+                    title = '基于运行状态识别结果: '
+                }
 
-            resDom = '<h5><span style="color:' + color + '">' + ours_text + '</span></h5>' +
-                     '<h5><span style="color:' + color + '">' + sport_text + '</span></h5>';
+                item = parseFloat(state[key]).toFixed(1)
 
-            return resDom;
+                weight = ''
+                if(item > 45) {
+                    weight = '较强'
+                } else {
+                    weight = '较弱'
+                }
+
+                if(isHistory) {
+                    tmpDom = tmpDom + title + item + '%(' + weight + ')；'
+                } else {
+
+                    tmpDom = tmpDom + '<h5><span style="color:' + color + '">' + title + item + '%(' + weight + ')</span></h5>'
+                }
+
+　　
+            }
+
+//            ours = parseFloat(state['ours']).toFixed(1)
+//            sport = parseFloat(state['sport']).toFixed(1)
+//
+//
+//            ours_text = '体态综合识别结果: ' + ours + '%';
+//            sport_text = '基于运行状态识别结果: ' + sport + '%';
+//
+//            if(isHistory) {
+//                resDom = '体态综合识别结果: ' + ours + '；基于运行状态识别结果: ' + sport
+//            } else {
+////                if()
+//                resDom = '<h5><span style="color:' + color + '">' + ours_text + '</span></h5>' +
+//                     '<h5><span style="color:' + color + '">' + sport_text + '</span></h5>';
+//            }
+
+            return tmpDom;
         }
 
     } else if(code === '0') {
@@ -381,8 +464,12 @@ var get_comprehensive_state_text_html = function(code, state) {
         text = code_status_mapping[code]
     }
 
+    if(isHistory) {
+        resDom = '<span style="color:' + color + '">' + text + '</span></h5>';
+    } else {
+        resDom = '<h5>综合状态: <span style="color:' + color + '">' + text + '</span></h5>';
+    }
 
-    resDom = '<h5>综合状态: <span style="color:' + color + '">' + text + '</span></h5>';
     return resDom;
 }
 //var get_comprehensive_state_text_html = function(code, state) {

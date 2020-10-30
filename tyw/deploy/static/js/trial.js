@@ -230,12 +230,13 @@ function show_result(data) {
     success_prompt("测试成功")
     var resDom = '';
 
+    console.log(data)
+
     target_count = TARGET_ITEM.length
     for(var i = 0; i < target_count; i++) {
         key = TARGET_ITEM[i]
         if(key === 'comprehensive') {
-
-            resDom = resDom + get_comprehensive_state_text_html(data[key]['code'], data[key]['state']);
+            resDom = resDom + get_comprehensive_state_text_html(data[key]['code'], data[key]['state'], false);
         } else {
             resDom = resDom + '<h5>' + target_text_mapping[key] + ':  ' + get_target_state_text_html(key, data[key]['code'], data[key]['state']) + '</h5>';
         }

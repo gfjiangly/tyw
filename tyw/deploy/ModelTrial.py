@@ -54,10 +54,13 @@ def model_trial(df, person_info, health_info, sport_file=None):
     # # 健康结果
     # health_code = 0
     # health = -1
-    # if cfg.TEST.HEALTH_MODEL.OPEN:
-    #     health = health_model.test(None)
-    # health_res = create_trial_bean(health_code, state=health)
-    health_res = health_trial(health_info['temperature'], health_info['curr_heart_rate'], health_info['blood_oxygen'])
+    if cfg.TEST.HEALTH_MODEL.OPEN:
+        # health = health_model.test(None)
+        # health_res = create_trial_bean(health_code, state=health)
+        health_res = health_trial(health_info['temperature'], health_info['curr_heart_rate'],
+                                  health_info['blood_oxygen'])
+    else:
+        health_res = create_trial_bean(0)
 
     # 调用综合体能模型
     fitness_model = FitnessModel(person_info)
@@ -110,4 +113,3 @@ def process_fear_result(fear):
 
 def process_fitness_result(fitness):
     return np.mean(fitness)
-
