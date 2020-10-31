@@ -52,9 +52,14 @@ def model_trial(df, person_info, health_info, sport_file=None):
     tired_code = 0
     tired = -1
     if cfg.TEST.TIRED_MODEL.OPEN:
-        tired_code = 1
-        tired = tired_model.test(None)
-    tired_res = create_trial_bean(tired_code, state=tired)
+        tired_res = tired_trial(health_info['temperature'],
+                                health_info['curr_heart_rate'],
+                                health_info['blood_oxygen'])
+    else:
+        tired_res = create_trial_bean(0)
+    #     tired_code = 1
+    #     tired = tired_model.test(None)
+    # tired_res = create_trial_bean(tired_code, state=tired)
 
     # 健康结果
     if cfg.TEST.HEALTH_MODEL.OPEN:
@@ -88,6 +93,15 @@ def model_trial(df, person_info, health_info, sport_file=None):
         "comprehensive": fitness_res
     }
     return result
+
+
+def tired_trial(temperature, curr_heart_rate, blood_oxygen):
+    # 调用疲劳模型
+    tired_code = 1
+    # tired = tired_model.test(None)
+    tired = 1
+    tired_res = create_trial_bean(tired_code, state=tired)
+    return tired_res
 
 
 def health_trial(temperature, curr_heart_rate, blood_oxygen):

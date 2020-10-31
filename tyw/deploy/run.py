@@ -124,7 +124,9 @@ def upload_health_config():
     temperature = flask.request.form['temperature']
     curr_heart_rate = flask.request.form['curr_heart_rate']
     blood_oxygen = flask.request.form['blood_oxygen']
-    return do_trial2(temperature, curr_heart_rate, blood_oxygen)
+    is_health = flask.request.form['is_health']
+    is_tired = flask.request.form['is_tired']
+    return do_trial2(temperature, curr_heart_rate, blood_oxygen, is_health, is_tired)
 
 
 # 上传 md5 和文件名
@@ -435,9 +437,14 @@ def do_trial(fid, file_path):
     return item
 
 
-def do_trial2(temperature, curr_heart_rate, blood_oxygen):
-    res = health_trial(temperature, curr_heart_rate, blood_oxygen)
-    dao.setHealthState(getUser(), res['code'], res['state'])
+def do_trial2(temperature, curr_heart_rate, blood_oxygen, is_health, is_tired):
+    res = {}
+    if is_health == 'true':
+        res['health'] = health_trial(temperature, curr_heart_rate, blood_oxygen)
+        dao.setHealthState(getUser(), res['health']['code'], res['health']['state'])
+    if is_tired == 'true':
+        res['tired'] = tired_trial(temperature, curr_heart_rate, blood_oxygen)
+        dao.setTiredState(getUser(), res['tired']['code'], res['tired']['state'])
     return res
 
 

@@ -413,3 +413,13 @@ def setHealthState(username, code, state):
 # 获取健康状态
 def getHealthState(username):
     return getConn().hmget(PERSON_INFO_KEY_PREFIX + username, ["health.code", "health.state"])
+
+
+# 设置疲劳状态
+def setTiredState(username, code, state):
+    getConn().hmset(PERSON_INFO_KEY_PREFIX + username, {"tired.code": code, "tired.state": state})
+
+
+# 获取疲劳状态
+def getTiredState(username):
+    getConn().hmget(PERSON_INFO_KEY_PREFIX + username, ["tired.code", "tired.state"])

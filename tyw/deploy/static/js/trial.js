@@ -55,7 +55,7 @@ function compreClick() {
     } else {
 
         $('#file2_upload_div').hide()
-        if(!is_hungry_checked() && !is_fear_checked() && !is_tired_checked()) {
+        if(!is_hungry_checked() && !is_fear_checked()) {
             $('#file1_upload_div').hide()
         } else {
             $('#file1_upload_div').show()
@@ -66,17 +66,18 @@ function compreClick() {
 
 // 健康复选框是否选中
 function healthClick() {
-    var checked = is_health_checked();
-    if(checked) {
+    //var checked = is_health_checked();
+    if(is_health_checked() || is_tired_checked()) {
         $('#form-div').show()
     } else {
         $('#form-div').hide()
     }
 }
 
+
 function otherCheckBoxClick() {
 
-    if(!is_hungry_checked() && !is_fear_checked() && !is_tired_checked() && !is_compre_checked()) {
+    if(!is_hungry_checked() && !is_fear_checked() && !is_compre_checked()) {
         $('#file1_upload_div').hide()
         $('#file2_upload_div').hide()
     } else if(is_compre_checked()) {
@@ -132,27 +133,45 @@ $('#upload-btn').click(function(){
     var temperature = $('#temperature').val();
     var curr_heart_rate = $('#curr-heart-rate').val();
     var blood_oxygen = $('#blood-oxygen').val()
-    if(is_health_checked() && !validate_temp_hrate_bloodox(temperature, curr_heart_rate, blood_oxygen)) {
+    if((is_health_checked() || is_tired_checked()) && !validate_temp_hrate_bloodox(temperature, curr_heart_rate, blood_oxygen)) {
         return
     }
 
 
-    // 只有健康
-    if(is_health_checked() && !is_compre_checked() && !is_hungry_checked() && !is_fear_checked() && !is_tired_checked()) {
+    // 健康和疲劳
+    if((is_health_checked() || is_tired_checked()) && !is_compre_checked() && !is_hungry_checked() && !is_fear_checked()) {
 
         trail_loading();
-        upload_health_config(temperature, curr_heart_rate, blood_oxygen, function(data) {
+        upload_health_tired_config(temperature, curr_heart_rate, blood_oxygen, is_health_checked(), is_tired_checked(), function(data) {
+            console.log(data)
+
             hide_loading();
             success_prompt("测试成功")
 
-            health_text = data['state']
-            if(health_text === 0 || health_text === '0') {
-                health_text = '<span style="color: #228B22">健康</span>'
-            } else {
-                health_text = '<span style="color: #FF0000">异常</span>'
+            text = ''
+            resDom = ''
+            for(var key in data) {
+
+                text = parseInt(data[key]['state'])
+                if(text === 0 || text === '0') {
+                    text = '<span style="color: #228B22">' + target_result_mapping[key][text] +'</span>'
+                } else if(text === 1 || text === '1') {
+                    text = '<span style="color: #FF0000">' + target_result_mapping[key][text] +'</span>'
+                } else {
+                    text = '<span style="color: #ccc">' + '未知状态' +'</span>'
+                }
+
+                resDom = resDom + '<h5>' + target_text_mapping[key] + ': ' + text + '</h5>';
             }
 
-            resDom = '<h5>' + "健康状态" + ':  ' + health_text + '</h5>';
+//            health_text = data['state']
+//            if(health_text === 0 || health_text === '0') {
+//                health_text = '<span style="color: #228B22">健康</span>'
+//            } else {
+//                health_text = '<span style="color: #FF0000">异常</span>'
+//            }
+//
+//            resDom = '<h5>' + "健康状态" + ':  ' + health_text + '</h5>';
             $('.trial-result').html(resDom);
         })
     } else {
@@ -230,7 +249,7 @@ function show_result(data) {
     success_prompt("测试成功")
     var resDom = '';
 
-    console.log(data)
+    //console.log(data)
 
     target_count = TARGET_ITEM.length
     for(var i = 0; i < target_count; i++) {
@@ -270,14 +289,16 @@ $('body').on('click', '.view-btn', function() {
 
 
 // 上传健康配置
-function upload_health_config(temperature, curr_heart_rate, blood_oxygen, callback) {
+function upload_health_tired_config(temperature, curr_heart_rate, blood_oxygen, is_health, is_tired, callback) {
     $.ajax({
         url: healthConfigUploadUrl,
         type: "post",
         data: {
             "temperature": temperature,
             "curr_heart_rate": curr_heart_rate,
-            "blood_oxygen": blood_oxygen
+            "blood_oxygen": blood_oxygen,
+            "is_health": is_health,
+            "is_tired": is_tired
         },
         success : function(data){
             callback(data)
