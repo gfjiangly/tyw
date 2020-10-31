@@ -40,6 +40,7 @@ class TiredModel(object):
         # print(classifier.predict([[36, 75, 99]]))
         # # 疲劳
         # print(classifier.predict([[37.4, 156, 90]]))
+        tired_info = list(map(float, tired_info))
         res = int(self.classifier.predict([tired_info]))
         return 1 if res > 0 else 0
 

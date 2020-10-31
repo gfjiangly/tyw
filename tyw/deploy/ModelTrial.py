@@ -5,6 +5,7 @@ from tyw.model.HungryModel import HungryModel
 from tyw.loader.FearLoader import FearLoader
 from tyw.model.FearModel import FearModel
 from tyw.model.HealthModel import HealthModel
+from tyw.model.TiredModel import TiredModel
 from tyw.loader.FitnessLoader import FitnessLoader
 from tyw.model.FitnessModel import FitnessModel
 from tyw.configs.config import merge_cfg_from_file, cfg
@@ -14,6 +15,7 @@ hungry_model = HungryModel(mode='test')
 hungry_model.test(np.zeros((1, 200, 1)))
 fear_model = FearModel(cfg)
 health_model = HealthModel()
+tired_model = TiredModel()
 
 
 def model_trial(df, person_info, health_info, sport_file=None):
@@ -49,17 +51,12 @@ def model_trial(df, person_info, health_info, sport_file=None):
     fear_res = create_trial_bean(fear_code, state=fear)
 
     # 调用疲劳模型
-    tired_code = 0
-    tired = -1
     if cfg.TEST.TIRED_MODEL.OPEN:
         tired_res = tired_trial(health_info['temperature'],
                                 health_info['curr_heart_rate'],
                                 health_info['blood_oxygen'])
     else:
         tired_res = create_trial_bean(0)
-    #     tired_code = 1
-    #     tired = tired_model.test(None)
-    # tired_res = create_trial_bean(tired_code, state=tired)
 
     # 健康结果
     if cfg.TEST.HEALTH_MODEL.OPEN:
@@ -98,8 +95,7 @@ def model_trial(df, person_info, health_info, sport_file=None):
 def tired_trial(temperature, curr_heart_rate, blood_oxygen):
     # 调用疲劳模型
     tired_code = 1
-    # tired = tired_model.test(None)
-    tired = 1
+    tired = tired_model.test([temperature, curr_heart_rate, blood_oxygen])
     tired_res = create_trial_bean(tired_code, state=tired)
     return tired_res
 
