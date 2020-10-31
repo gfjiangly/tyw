@@ -32,7 +32,7 @@ def model_trial(df, person_info, health_info, sport_file=None):
         else:
             hungry_code = 1
             hungry = hungry_model.test(ppg)
-            hungry = int(process_hungry_result(hungry))
+            hungry = 1 - int(process_hungry_result(hungry))
     hungry_res = create_trial_bean(hungry_code, state=hungry)
 
     # 调用恐惧模型

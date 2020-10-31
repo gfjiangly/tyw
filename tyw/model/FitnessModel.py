@@ -42,14 +42,33 @@ class FitnessModel(object):
         df = pd.read_csv(sport_file, header=None).iloc[:, [3]]
         status_t = df.value_counts()
         # print(status_t.index)
-        if run + walk > 0:
+        # if run == 0 and walk != 0:
+        #     ave_heart = (status_t[(1,)] * walk) / status_t[(1,)]
+        # elif run != 0 and walk == 0:
+        #     ave_heart = (status_t[(2,)] * run) / status_t[(2,)]
+        # elif run != 0 and walk != 0:
+        #     ave_heart = (status_t[(1,)] * walk + status_t[(2,)] * run) / \
+        #                 (status_t[(1,)] + status_t[(2,)])
+        # else:
+        #     ave_heart = 0.
+        if run == 0 and walk != 0:
+            ave_heart = walk
+        elif run != 0 and walk == 0:
+            ave_heart = run
+        elif run != 0 and walk != 0:
             ave_heart = (status_t[(1,)] * walk + status_t[(2,)] * run) / \
                         (status_t[(1,)] + status_t[(2,)])
         else:
             ave_heart = 0.
-        walk_t = status_t[(1,)] / 3600.
-        run_t = status_t[(2,)] / 3600.
-        calories = self.body_weight * walk_t * 5 + self.body_weight * run_t * 10
+        if (1,) not in status_t:
+            walk_t = 0
+        else:
+            walk_t = status_t[(1,)] / 3600.
+        if (2,) not in status_t:
+            run_t = 0
+        else:
+            run_t = status_t[(2,)] / 3600.
+        calories = self.body_weight * walk_t * 3 + self.body_weight * run_t * 6
         calories = calories / (walk_t + run_t) / 60.
         index = -1
         for i in range(len(self.calories_o2)-1):
