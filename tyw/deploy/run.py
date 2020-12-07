@@ -412,8 +412,9 @@ def do_trial(fid, file_path):
     # -1 表示此项值无效，通常在前端没有勾选“健康”时为 -1
     health_info = dao.getHealthConfig(fid)
     sport_file = dao.getBodyFileName(getUser())
-    sport_file = osp.join(
-        log_save_root, app.config['UPLOAD_FOLDER'], sport_file)
+    if sport_file:
+        sport_file = osp.join(
+            log_save_root, app.config['UPLOAD_FOLDER'], sport_file)
     person_info = dao.getPersonInfo(getUser())
     res = model_trial(df, person_info, health_info, sport_file)
     ###################
